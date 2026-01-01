@@ -1,0 +1,345 @@
+[debug] [2026-01-01T18:54:15.091Z] ----------------------------------------------------------------------
+[debug] [2026-01-01T18:54:15.093Z] Command:       /Users/bradleybaker/.nvm/versions/node/v22.16.0/bin/node /Users/bradleybaker/.nvm/versions/node/v22.16.0/bin/firebase deploy --only functions
+[debug] [2026-01-01T18:54:15.093Z] CLI Version:   15.1.0
+[debug] [2026-01-01T18:54:15.093Z] Platform:      darwin
+[debug] [2026-01-01T18:54:15.093Z] Node Version:  v22.16.0
+[debug] [2026-01-01T18:54:15.093Z] Time:          Thu Jan 01 2026 20:54:15 GMT+0200 (South Africa Standard Time)
+[debug] [2026-01-01T18:54:15.093Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-01-01T18:54:15.888Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-01-01T18:54:15.889Z] > authorizing via signed-in user (bradsgbaker14@gmail.com)
+[debug] [2026-01-01T18:54:15.889Z] [iam] checking project binarybaker2025 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2026-01-01T18:54:15.889Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:54:15.889Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:54:15.890Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/binarybaker2025:testIamPermissions [none]
+[debug] [2026-01-01T18:54:15.890Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/binarybaker2025:testIamPermissions x-goog-quota-user=projects/binarybaker2025
+[debug] [2026-01-01T18:54:15.890Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/binarybaker2025:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-01-01T18:54:23.427Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/binarybaker2025:testIamPermissions 200
+[debug] [2026-01-01T18:54:23.427Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/binarybaker2025:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-01-01T18:54:23.427Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:54:23.428Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:54:23.428Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/binarybaker2025/serviceAccounts/binarybaker2025@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2026-01-01T18:54:23.428Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/binarybaker2025/serviceAccounts/binarybaker2025@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2026-01-01T18:54:30.504Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/binarybaker2025/serviceAccounts/binarybaker2025@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2026-01-01T18:54:30.504Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/binarybaker2025/serviceAccounts/binarybaker2025@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'binarybaker2025'...
+[info] 
+[info] i  deploying functions 
+[debug] [2026-01-01T18:54:30.508Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:54:30.509Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:54:30.509Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/binarybaker2025 [none]
+[debug] [2026-01-01T18:54:37.481Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/binarybaker2025 200
+[debug] [2026-01-01T18:54:37.481Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/binarybaker2025 {"projectNumber":"895288452460","projectId":"binarybaker2025","lifecycleState":"ACTIVE","name":"binarybaker2025","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-12-10T18:54:26.425685Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2026-01-01T18:54:37.485Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:54:37.485Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:54:37.485Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/binarybaker2025/adminSdkConfig [none]
+[debug] [2026-01-01T18:54:43.216Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/binarybaker2025/adminSdkConfig 200
+[debug] [2026-01-01T18:54:43.217Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/binarybaker2025/adminSdkConfig {"projectId":"binarybaker2025","storageBucket":"binarybaker2025.firebasestorage.app"}
+[debug] [2026-01-01T18:54:43.218Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:54:43.218Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:54:43.218Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/binarybaker2025/configs [none]
+[debug] [2026-01-01T18:54:49.227Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/binarybaker2025/configs 200
+[debug] [2026-01-01T18:54:49.227Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/binarybaker2025/configs {}
+[debug] [2026-01-01T18:54:49.229Z] Validating nodejs source
+[warn] ⚠  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] ⚠  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2026-01-01T18:54:55.248Z] > [functions] package.json contents: {
+  "name": "binary-baker-functions",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^4.5.0",
+    "resend": "^3.2.0"
+  }
+}
+[debug] [2026-01-01T18:54:55.248Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[info] i  functions: You are using a version of firebase-functions SDK (4.9.0) that does not have support for the newest Firebase Extensions features. Please update firebase-functions SDK to >=5.1.0 to use them correctly 
+[debug] [2026-01-01T18:54:55.249Z] Could not find functions.yaml. Must use http discovery
+[debug] [2026-01-01T18:54:55.257Z] Found firebase-functions binary at '/Users/bradleybaker/Desktop/Personal/New Projects/BinaryBaker/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8352
+
+[debug] [2026-01-01T18:54:55.535Z] Got response from /__/functions.yaml {"endpoints":{"inviteClientOnCreate":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"RESEND_API_KEY"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"clients/{clientId}"},"retry":false},"entryPoint":"inviteClientOnCreate"}},"specVersion":"v1alpha1","requiredAPIs":[],"params":[{"type":"secret","name":"RESEND_API_KEY"},{"name":"RESEND_FROM","type":"string","default":"Binary Baker <hello@binarybaker.com>"},{"name":"CLIENT_PORTAL_URL","type":"string","default":"https://yourdomain.com/portal"}]}
+[debug] [2026-01-01T18:54:59.559Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:54:59.559Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:54:59.559Z] >>> [apiv2][query] GET https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY [none]
+[debug] [2026-01-01T18:55:05.171Z] <<< [apiv2][status] GET https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY 200
+[debug] [2026-01-01T18:55:05.171Z] <<< [apiv2][body] GET https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY {"name":"projects/895288452460/secrets/RESEND_API_KEY","replication":{"automatic":{}},"createTime":"2026-01-01T18:47:09.110368Z","labels":{"firebase-managed":"functions"},"etag":"\"164758053c7df2\""}
+[debug] [2026-01-01T18:55:05.173Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:55:05.173Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:55:05.173Z] >>> [apiv2][query] GET https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY/versions/latest [none]
+[debug] [2026-01-01T18:55:06.673Z] <<< [apiv2][status] GET https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY/versions/latest 200
+[debug] [2026-01-01T18:55:06.673Z] <<< [apiv2][body] GET https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY/versions/latest {"name":"projects/895288452460/secrets/RESEND_API_KEY/versions/1","createTime":"2026-01-01T18:47:33.438003Z","state":"ENABLED","replicationStatus":{"automatic":{}},"etag":"\"1647580695ca33\""}
+[info] i  functions: Created new local file .env.binarybaker2025 to store param values. We suggest explicitly adding or excluding this file from version control. 
+[info] i  functions: Loaded environment variables from .env.binarybaker2025. 
+[info] i  functions: Loaded environment variables from .env.binarybaker2025. 
+[info] i  functions: Writing new parameter values to disk: .env.binarybaker2025 
+[info] i  functions: preparing functions directory for uploading... 
+[info] i  functions: packaged /Users/bradleybaker/Desktop/Personal/New Projects/BinaryBaker/functions (39.64 KB) for uploading 
+[debug] [2026-01-01T18:56:58.729Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:56:58.729Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:56:58.729Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v1/projects/binarybaker2025/locations/-/functions [none]
+[debug] [2026-01-01T18:57:05.079Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v1/projects/binarybaker2025/locations/-/functions 200
+[debug] [2026-01-01T18:57:05.079Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v1/projects/binarybaker2025/locations/-/functions {}
+[debug] [2026-01-01T18:57:05.079Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:05.079Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:05.080Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/binarybaker2025/locations/-/functions filter=environment%3D%22GEN_2%22
+[debug] [2026-01-01T18:57:06.685Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/binarybaker2025/locations/-/functions 200
+[debug] [2026-01-01T18:57:06.685Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/binarybaker2025/locations/-/functions {}
+[debug] [2026-01-01T18:57:06.688Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:06.689Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:06.689Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/binarybaker2025/databases/(default) [none]
+[debug] [2026-01-01T18:57:09.925Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/binarybaker2025/databases/(default) 200
+[debug] [2026-01-01T18:57:09.926Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/binarybaker2025/databases/(default) {"name":"projects/binarybaker2025/databases/(default)","uid":"1c7741fd-3f1c-4f36-8d44-5421c8393018","createTime":"2025-12-29T10:05:43.187105Z","updateTime":"2025-12-29T10:05:43.187105Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2026-01-01T17:57:10.084735Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"realtimeUpdatesMode":"REALTIME_UPDATES_MODE_ENABLED","etag":"IJXt0seC65EDMKmxrZnG4pED"}
+[info] i  functions: ensuring required API run.googleapis.com is enabled... 
+[debug] [2026-01-01T18:57:09.929Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:09.929Z] Checked if tokens are valid: true, expires at: 1767296599717
+[info] i  functions: ensuring required API eventarc.googleapis.com is enabled... 
+[debug] [2026-01-01T18:57:09.929Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:09.929Z] Checked if tokens are valid: true, expires at: 1767296599717
+[info] i  functions: ensuring required API pubsub.googleapis.com is enabled... 
+[debug] [2026-01-01T18:57:09.930Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:09.930Z] Checked if tokens are valid: true, expires at: 1767296599717
+[info] i  functions: ensuring required API storage.googleapis.com is enabled... 
+[debug] [2026-01-01T18:57:09.930Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:09.930Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:09.930Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/run.googleapis.com [none]
+[debug] [2026-01-01T18:57:09.930Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/run.googleapis.com x-goog-quota-user=projects/895288452460
+[debug] [2026-01-01T18:57:09.932Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/eventarc.googleapis.com [none]
+[debug] [2026-01-01T18:57:09.932Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/eventarc.googleapis.com x-goog-quota-user=projects/895288452460
+[debug] [2026-01-01T18:57:09.933Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/pubsub.googleapis.com [none]
+[debug] [2026-01-01T18:57:09.933Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/pubsub.googleapis.com x-goog-quota-user=projects/895288452460
+[debug] [2026-01-01T18:57:09.933Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/storage.googleapis.com [none]
+[debug] [2026-01-01T18:57:09.933Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/storage.googleapis.com x-goog-quota-user=projects/895288452460
+[debug] [2026-01-01T18:57:17.295Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/eventarc.googleapis.com 200
+[debug] [2026-01-01T18:57:17.295Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/eventarc.googleapis.com [omitted]
+[warn] ⚠  functions: missing required API eventarc.googleapis.com. Enabling now... 
+[debug] [2026-01-01T18:57:17.296Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:17.296Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:17.296Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/895288452460/services/eventarc.googleapis.com:enable [none]
+[debug] [2026-01-01T18:57:17.296Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/895288452460/services/eventarc.googleapis.com:enable x-goog-quota-user=projects/895288452460
+[debug] [2026-01-01T18:57:17.299Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/pubsub.googleapis.com 200
+[debug] [2026-01-01T18:57:17.299Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/pubsub.googleapis.com [omitted]
+[info] ✔  functions: required API pubsub.googleapis.com is enabled 
+[debug] [2026-01-01T18:57:17.338Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/run.googleapis.com 200
+[debug] [2026-01-01T18:57:17.338Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/run.googleapis.com [omitted]
+[warn] ⚠  functions: missing required API run.googleapis.com. Enabling now... 
+[debug] [2026-01-01T18:57:17.339Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:17.339Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:17.339Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/895288452460/services/run.googleapis.com:enable [none]
+[debug] [2026-01-01T18:57:17.339Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/895288452460/services/run.googleapis.com:enable x-goog-quota-user=projects/895288452460
+[debug] [2026-01-01T18:57:17.340Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/storage.googleapis.com 200
+[debug] [2026-01-01T18:57:17.340Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/storage.googleapis.com [omitted]
+[info] ✔  functions: required API storage.googleapis.com is enabled 
+[debug] [2026-01-01T18:57:19.646Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/895288452460/services/run.googleapis.com:enable 200
+[debug] [2026-01-01T18:57:19.647Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/895288452460/services/run.googleapis.com:enable [omitted]
+[debug] [2026-01-01T18:57:19.664Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/895288452460/services/eventarc.googleapis.com:enable 200
+[debug] [2026-01-01T18:57:19.664Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/895288452460/services/eventarc.googleapis.com:enable [omitted]
+[info] i  functions: generating the service identity for pubsub.googleapis.com... 
+[debug] [2026-01-01T18:57:29.676Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:29.676Z] Checked if tokens are valid: true, expires at: 1767296599717
+[info] i  functions: generating the service identity for eventarc.googleapis.com... 
+[debug] [2026-01-01T18:57:29.676Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:29.676Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:29.676Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1beta1/projects/895288452460/services/pubsub.googleapis.com:generateServiceIdentity [none]
+[debug] [2026-01-01T18:57:29.676Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1beta1/projects/895288452460/services/pubsub.googleapis.com:generateServiceIdentity x-goog-quota-user=projects/895288452460
+[debug] [2026-01-01T18:57:29.677Z] >>> [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/895288452460/services/pubsub.googleapis.com:generateServiceIdentity {}
+[debug] [2026-01-01T18:57:29.678Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1beta1/projects/895288452460/services/eventarc.googleapis.com:generateServiceIdentity [none]
+[debug] [2026-01-01T18:57:29.679Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1beta1/projects/895288452460/services/eventarc.googleapis.com:generateServiceIdentity x-goog-quota-user=projects/895288452460
+[debug] [2026-01-01T18:57:29.679Z] >>> [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/895288452460/services/eventarc.googleapis.com:generateServiceIdentity {}
+[debug] [2026-01-01T18:57:35.868Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1beta1/projects/895288452460/services/pubsub.googleapis.com:generateServiceIdentity 200
+[debug] [2026-01-01T18:57:35.868Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/895288452460/services/pubsub.googleapis.com:generateServiceIdentity {"name":"operations/finished.DONE_OPERATION","done":true,"response":{"@type":"type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity","email":"service-895288452460@gcp-sa-pubsub.iam.gserviceaccount.com","uniqueId":"102570036947656511680"}}
+[debug] [2026-01-01T18:57:35.873Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1beta1/projects/895288452460/services/eventarc.googleapis.com:generateServiceIdentity 200
+[debug] [2026-01-01T18:57:35.873Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/895288452460/services/eventarc.googleapis.com:generateServiceIdentity {"name":"operations/finished.DONE_OPERATION","done":true,"response":{"@type":"type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity","email":"service-895288452460@gcp-sa-eventarc.iam.gserviceaccount.com","uniqueId":"108517423613693228510"}}
+[info] i  functions: ensuring required API secretmanager.googleapis.com is enabled... 
+[debug] [2026-01-01T18:57:35.874Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:35.874Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:35.874Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/secretmanager.googleapis.com [none]
+[debug] [2026-01-01T18:57:35.874Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/secretmanager.googleapis.com x-goog-quota-user=projects/895288452460
+[debug] [2026-01-01T18:57:37.851Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/secretmanager.googleapis.com 200
+[debug] [2026-01-01T18:57:37.851Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/895288452460/services/secretmanager.googleapis.com [omitted]
+[info] ✔  functions: required API secretmanager.googleapis.com is enabled 
+[debug] [2026-01-01T18:57:37.863Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:37.863Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:37.864Z] >>> [apiv2][query] GET https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY/versions/latest [none]
+[debug] [2026-01-01T18:57:44.670Z] <<< [apiv2][status] GET https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY/versions/latest 200
+[debug] [2026-01-01T18:57:44.670Z] <<< [apiv2][body] GET https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY/versions/latest {"name":"projects/895288452460/secrets/RESEND_API_KEY/versions/1","createTime":"2026-01-01T18:47:33.438003Z","state":"ENABLED","replicationStatus":{"automatic":{}},"etag":"\"1647580695ca33\""}
+[debug] [2026-01-01T18:57:44.670Z] Resolved secret version of RESEND_API_KEY to 1.
+[debug] [2026-01-01T18:57:44.672Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:44.672Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:44.672Z] >>> [apiv2][query] GET https://compute.googleapis.com/compute/v1/projects/895288452460 [none]
+[debug] [2026-01-01T18:57:48.700Z] <<< [apiv2][status] GET https://compute.googleapis.com/compute/v1/projects/895288452460 403
+[debug] [2026-01-01T18:57:48.700Z] <<< [apiv2][body] GET https://compute.googleapis.com/compute/v1/projects/895288452460 {"error":{"code":403,"message":"Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","errors":[{"message":"Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","domain":"usageLimits","reason":"accessNotConfigured","extendedHelp":"https://console.developers.google.com"}],"status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"SERVICE_DISABLED","domain":"googleapis.com","metadata":{"containerInfo":"895288452460","service":"compute.googleapis.com","activationUrl":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460","consumer":"projects/895288452460","serviceTitle":"Compute Engine API"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."},{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Google developers console API activation","url":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460"}]}]}}
+[debug] [2026-01-01T18:57:48.701Z] unable to look up default compute service account. Falling back to 895288452460-compute@developer.gserviceaccount.com. Error: {"name":"FirebaseError","children":[],"context":{"body":{"error":{"code":403,"message":"Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","errors":[{"message":"Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","domain":"usageLimits","reason":"accessNotConfigured","extendedHelp":"https://console.developers.google.com"}],"status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"SERVICE_DISABLED","domain":"googleapis.com","metadata":{"containerInfo":"895288452460","service":"compute.googleapis.com","activationUrl":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460","consumer":"projects/895288452460","serviceTitle":"Compute Engine API"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."},{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Google developers console API activation","url":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460"}]}]}},"response":{"statusCode":403}},"exit":1,"message":"Request to https://compute.googleapis.com/compute/v1/projects/895288452460 had HTTP Error: 403, Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","status":403}
+[debug] [2026-01-01T18:57:48.701Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:48.701Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:48.701Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/895288452460:getIamPolicy [none]
+[debug] [2026-01-01T18:57:55.473Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/895288452460:getIamPolicy 200
+[debug] [2026-01-01T18:57:55.473Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/895288452460:getIamPolicy {"version":1,"etag":"BwZHWCmws/U=","bindings":[{"role":"roles/cloudbuild.builds.builder","members":["serviceAccount:895288452460@cloudbuild.gserviceaccount.com"]},{"role":"roles/cloudbuild.serviceAgent","members":["serviceAccount:service-895288452460@gcp-sa-cloudbuild.iam.gserviceaccount.com"]},{"role":"roles/cloudfunctions.serviceAgent","members":["serviceAccount:service-895288452460@gcf-admin-robot.iam.gserviceaccount.com"]},{"role":"roles/containerregistry.ServiceAgent","members":["serviceAccount:service-895288452460@containerregistry.iam.gserviceaccount.com"]},{"role":"roles/editor","members":["serviceAccount:895288452460-compute@developer.gserviceaccount.com","serviceAccount:binarybaker2025@appspot.gserviceaccount.com"]},{"role":"roles/firebase.managementServiceAgent","members":["serviceAccount:service-895288452460@gcp-sa-firebase.iam.gserviceaccount.com"]},{"role":"roles/firebase.sdkAdminServiceAgent","members":["serviceAccount:firebase-adminsdk-fbsvc@binarybaker2025.iam.gserviceaccount.com"]},{"role":"roles/firebaseauth.admin","members":["serviceAccount:firebase-adminsdk-fbsvc@binarybaker2025.iam.gserviceaccount.com"]},{"role":"roles/firebaserules.system","members":["serviceAccount:service-895288452460@firebase-rules.iam.gserviceaccount.com"]},{"role":"roles/firestore.serviceAgent","members":["serviceAccount:service-895288452460@gcp-sa-firestore.iam.gserviceaccount.com"]},{"role":"roles/iam.serviceAccountTokenCreator","members":["serviceAccount:firebase-adminsdk-fbsvc@binarybaker2025.iam.gserviceaccount.com"]},{"role":"roles/owner","members":["user:bradsgbaker14@gmail.com"]},{"role":"roles/run.serviceAgent","members":["serviceAccount:service-895288452460@serverless-robot-prod.iam.gserviceaccount.com"]}]}
+[debug] [2026-01-01T18:57:55.474Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:55.474Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:55.474Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/895288452460:setIamPolicy [none]
+[debug] [2026-01-01T18:57:55.474Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/895288452460:setIamPolicy {"policy":{"version":1,"etag":"BwZHWCmws/U=","bindings":[{"role":"roles/cloudbuild.builds.builder","members":["serviceAccount:895288452460@cloudbuild.gserviceaccount.com"]},{"role":"roles/cloudbuild.serviceAgent","members":["serviceAccount:service-895288452460@gcp-sa-cloudbuild.iam.gserviceaccount.com"]},{"role":"roles/cloudfunctions.serviceAgent","members":["serviceAccount:service-895288452460@gcf-admin-robot.iam.gserviceaccount.com"]},{"role":"roles/containerregistry.ServiceAgent","members":["serviceAccount:service-895288452460@containerregistry.iam.gserviceaccount.com"]},{"role":"roles/editor","members":["serviceAccount:895288452460-compute@developer.gserviceaccount.com","serviceAccount:binarybaker2025@appspot.gserviceaccount.com"]},{"role":"roles/firebase.managementServiceAgent","members":["serviceAccount:service-895288452460@gcp-sa-firebase.iam.gserviceaccount.com"]},{"role":"roles/firebase.sdkAdminServiceAgent","members":["serviceAccount:firebase-adminsdk-fbsvc@binarybaker2025.iam.gserviceaccount.com"]},{"role":"roles/firebaseauth.admin","members":["serviceAccount:firebase-adminsdk-fbsvc@binarybaker2025.iam.gserviceaccount.com"]},{"role":"roles/firebaserules.system","members":["serviceAccount:service-895288452460@firebase-rules.iam.gserviceaccount.com"]},{"role":"roles/firestore.serviceAgent","members":["serviceAccount:service-895288452460@gcp-sa-firestore.iam.gserviceaccount.com"]},{"role":"roles/iam.serviceAccountTokenCreator","members":["serviceAccount:firebase-adminsdk-fbsvc@binarybaker2025.iam.gserviceaccount.com","serviceAccount:service-895288452460@gcp-sa-pubsub.iam.gserviceaccount.com"]},{"role":"roles/owner","members":["user:bradsgbaker14@gmail.com"]},{"role":"roles/run.serviceAgent","members":["serviceAccount:service-895288452460@serverless-robot-prod.iam.gserviceaccount.com"]},{"role":"roles/run.invoker","members":["serviceAccount:895288452460-compute@developer.gserviceaccount.com"]},{"role":"roles/eventarc.eventReceiver","members":["serviceAccount:895288452460-compute@developer.gserviceaccount.com"]}]},"updateMask":"bindings"}
+[debug] [2026-01-01T18:57:57.045Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/895288452460:setIamPolicy 200
+[debug] [2026-01-01T18:57:57.045Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/895288452460:setIamPolicy {"version":1,"etag":"BwZHWCvDdfU=","bindings":[{"role":"roles/cloudbuild.builds.builder","members":["serviceAccount:895288452460@cloudbuild.gserviceaccount.com"]},{"role":"roles/cloudbuild.serviceAgent","members":["serviceAccount:service-895288452460@gcp-sa-cloudbuild.iam.gserviceaccount.com"]},{"role":"roles/cloudfunctions.serviceAgent","members":["serviceAccount:service-895288452460@gcf-admin-robot.iam.gserviceaccount.com"]},{"role":"roles/containerregistry.ServiceAgent","members":["serviceAccount:service-895288452460@containerregistry.iam.gserviceaccount.com"]},{"role":"roles/editor","members":["serviceAccount:895288452460-compute@developer.gserviceaccount.com","serviceAccount:binarybaker2025@appspot.gserviceaccount.com"]},{"role":"roles/eventarc.eventReceiver","members":["serviceAccount:895288452460-compute@developer.gserviceaccount.com"]},{"role":"roles/firebase.managementServiceAgent","members":["serviceAccount:service-895288452460@gcp-sa-firebase.iam.gserviceaccount.com"]},{"role":"roles/firebase.sdkAdminServiceAgent","members":["serviceAccount:firebase-adminsdk-fbsvc@binarybaker2025.iam.gserviceaccount.com"]},{"role":"roles/firebaseauth.admin","members":["serviceAccount:firebase-adminsdk-fbsvc@binarybaker2025.iam.gserviceaccount.com"]},{"role":"roles/firebaserules.system","members":["serviceAccount:service-895288452460@firebase-rules.iam.gserviceaccount.com"]},{"role":"roles/firestore.serviceAgent","members":["serviceAccount:service-895288452460@gcp-sa-firestore.iam.gserviceaccount.com"]},{"role":"roles/iam.serviceAccountTokenCreator","members":["serviceAccount:firebase-adminsdk-fbsvc@binarybaker2025.iam.gserviceaccount.com","serviceAccount:service-895288452460@gcp-sa-pubsub.iam.gserviceaccount.com"]},{"role":"roles/owner","members":["user:bradsgbaker14@gmail.com"]},{"role":"roles/run.invoker","members":["serviceAccount:895288452460-compute@developer.gserviceaccount.com"]},{"role":"roles/run.serviceAgent","members":["serviceAccount:service-895288452460@serverless-robot-prod.iam.gserviceaccount.com"]}]}
+[debug] [2026-01-01T18:57:57.049Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:57.049Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:57.050Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/binarybaker2025 [none]
+[debug] [2026-01-01T18:57:57.860Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/binarybaker2025 200
+[debug] [2026-01-01T18:57:57.860Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/binarybaker2025 {"projectNumber":"895288452460","projectId":"binarybaker2025","lifecycleState":"ACTIVE","name":"binarybaker2025","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-12-10T18:54:26.425685Z"}
+[debug] [2026-01-01T18:57:57.860Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:57.860Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:57:57.860Z] >>> [apiv2][query] GET https://compute.googleapis.com/compute/v1/projects/895288452460 [none]
+[debug] [2026-01-01T18:58:00.247Z] <<< [apiv2][status] GET https://compute.googleapis.com/compute/v1/projects/895288452460 403
+[debug] [2026-01-01T18:58:00.247Z] <<< [apiv2][body] GET https://compute.googleapis.com/compute/v1/projects/895288452460 {"error":{"code":403,"message":"Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","errors":[{"message":"Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","domain":"usageLimits","reason":"accessNotConfigured","extendedHelp":"https://console.developers.google.com"}],"status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"SERVICE_DISABLED","domain":"googleapis.com","metadata":{"activationUrl":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460","service":"compute.googleapis.com","serviceTitle":"Compute Engine API","consumer":"projects/895288452460","containerInfo":"895288452460"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."},{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Google developers console API activation","url":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460"}]}]}}
+[debug] [2026-01-01T18:58:00.247Z] unable to look up default compute service account. Falling back to 895288452460-compute@developer.gserviceaccount.com. Error: {"name":"FirebaseError","children":[],"context":{"body":{"error":{"code":403,"message":"Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","errors":[{"message":"Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","domain":"usageLimits","reason":"accessNotConfigured","extendedHelp":"https://console.developers.google.com"}],"status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"SERVICE_DISABLED","domain":"googleapis.com","metadata":{"activationUrl":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460","service":"compute.googleapis.com","serviceTitle":"Compute Engine API","consumer":"projects/895288452460","containerInfo":"895288452460"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."},{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Google developers console API activation","url":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460"}]}]}},"response":{"statusCode":403}},"exit":1,"message":"Request to https://compute.googleapis.com/compute/v1/projects/895288452460 had HTTP Error: 403, Compute Engine API has not been used in project 895288452460 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=895288452460 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","status":403}
+[info] i  functions: ensuring 895288452460-compute@developer.gserviceaccount.com access to secret RESEND_API_KEY. 
+[debug] [2026-01-01T18:58:00.247Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:58:00.248Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:58:00.248Z] >>> [apiv2][query] GET https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY:getIamPolicy [none]
+[debug] [2026-01-01T18:58:06.166Z] <<< [apiv2][status] GET https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY:getIamPolicy 200
+[debug] [2026-01-01T18:58:06.166Z] <<< [apiv2][body] GET https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY:getIamPolicy {"etag":"ACAB"}
+[debug] [2026-01-01T18:58:06.167Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:58:06.167Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:58:06.167Z] >>> [apiv2][query] POST https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY:setIamPolicy [none]
+[debug] [2026-01-01T18:58:06.167Z] >>> [apiv2][body] POST https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY:setIamPolicy {"policy":{"bindings":[{"role":"roles/secretmanager.secretAccessor","members":["serviceAccount:895288452460-compute@developer.gserviceaccount.com"]}]},"updateMask":"bindings"}
+[debug] [2026-01-01T18:58:08.351Z] <<< [apiv2][status] POST https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY:setIamPolicy 200
+[debug] [2026-01-01T18:58:08.351Z] <<< [apiv2][body] POST https://secretmanager.googleapis.com/v1/projects/binarybaker2025/secrets/RESEND_API_KEY:setIamPolicy {"version":1,"etag":"BwZHWCxwCD0=","bindings":[{"role":"roles/secretmanager.secretAccessor","members":["serviceAccount:895288452460-compute@developer.gserviceaccount.com"]}]}
+[info] ✔  secretmanager: Granted roles/secretmanager.secretAccessor on projects/binarybaker2025/secrets/RESEND_API_KEY to 895288452460-compute@developer.gserviceaccount.com 
+[info] ✔  functions: ensured 895288452460-compute@developer.gserviceaccount.com access to RESEND_API_KEY. 
+[debug] [2026-01-01T18:58:08.353Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:58:08.353Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:58:08.354Z] >>> [apiv2][query] POST https://cloudfunctions.googleapis.com/v2/projects/binarybaker2025/locations/us-central1/functions:generateUploadUrl [none]
+[debug] [2026-01-01T18:58:16.311Z] <<< [apiv2][status] POST https://cloudfunctions.googleapis.com/v2/projects/binarybaker2025/locations/us-central1/functions:generateUploadUrl 200
+[debug] [2026-01-01T18:58:16.312Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/binarybaker2025/locations/us-central1/functions:generateUploadUrl {"uploadUrl":"https://storage.googleapis.com/gcf-v2-uploads-895288452460.us-central1.cloudfunctions.appspot.com/cda07663-369d-409b-8df9-e28cea099351.zip?GoogleAccessId=service-895288452460@gcf-admin-robot.iam.gserviceaccount.com&Expires=1767295696&Signature=ItCTgZhtKjvmwWoxHAZkab30rLBl00sOKiq8jUs7L2ivspPC2j0dDc0gWz9ETP6DHbgfED7mQCSR9To4Fnxgi%2BW7QrPx%2F1cM30ISprH0%2FF%2BZXh7Sf4h8Kk4wUGL1%2BEugGniMVvWdPdzLk6PkAue6V5hf8Fy4G%2B8ByFfZSBMlI69Ome70iIXmhpi%2BNiCEz%2Bq5oalPfvliObs6trizy38694c7xGRMlw8LyvbfDCHYtZR50DUb985wLeSfYkC0U%2BrVNqXUBEJ5RBa5lv%2BQa7HY8SyiLsisx%2BUWEKNvwf5a4Tdqdx40CrEekZvsaDr0LSQC6bjy%2Fuv5f6QMfoVg2NGKXQ%3D%3D","storageSource":{"bucket":"gcf-v2-uploads-895288452460.us-central1.cloudfunctions.appspot.com","object":"cda07663-369d-409b-8df9-e28cea099351.zip"}}
+[debug] [2026-01-01T18:58:16.313Z] >>> [apiv2][query] PUT https://storage.googleapis.com/gcf-v2-uploads-895288452460.us-central1.cloudfunctions.appspot.com/cda07663-369d-409b-8df9-e28cea099351.zip GoogleAccessId=service-895288452460%40gcf-admin-robot.iam.gserviceaccount.com&Expires=1767295696&Signature=ItCTgZhtKjvmwWoxHAZkab30rLBl00sOKiq8jUs7L2ivspPC2j0dDc0gWz9ETP6DHbgfED7mQCSR9To4Fnxgi%2BW7QrPx%2F1cM30ISprH0%2FF%2BZXh7Sf4h8Kk4wUGL1%2BEugGniMVvWdPdzLk6PkAue6V5hf8Fy4G%2B8ByFfZSBMlI69Ome70iIXmhpi%2BNiCEz%2Bq5oalPfvliObs6trizy38694c7xGRMlw8LyvbfDCHYtZR50DUb985wLeSfYkC0U%2BrVNqXUBEJ5RBa5lv%2BQa7HY8SyiLsisx%2BUWEKNvwf5a4Tdqdx40CrEekZvsaDr0LSQC6bjy%2Fuv5f6QMfoVg2NGKXQ%3D%3D
+[debug] [2026-01-01T18:58:16.313Z] >>> [apiv2][body] PUT https://storage.googleapis.com/gcf-v2-uploads-895288452460.us-central1.cloudfunctions.appspot.com/cda07663-369d-409b-8df9-e28cea099351.zip [stream]
+[debug] [2026-01-01T18:58:25.088Z] <<< [apiv2][status] PUT https://storage.googleapis.com/gcf-v2-uploads-895288452460.us-central1.cloudfunctions.appspot.com/cda07663-369d-409b-8df9-e28cea099351.zip 200
+[debug] [2026-01-01T18:58:25.091Z] <<< [apiv2][body] PUT https://storage.googleapis.com/gcf-v2-uploads-895288452460.us-central1.cloudfunctions.appspot.com/cda07663-369d-409b-8df9-e28cea099351.zip [omitted]
+[info] ✔  functions: functions source uploaded successfully 
+[info] i  functions: creating Node.js 20 (2nd Gen) function inviteClientOnCreate(us-central1)... 
+[debug] [2026-01-01T18:58:25.099Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:58:25.100Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:58:25.100Z] >>> [apiv2][query] POST https://cloudfunctions.googleapis.com/v2/projects/binarybaker2025/locations/us-central1/functions functionId=inviteClientOnCreate
+[debug] [2026-01-01T18:58:25.100Z] >>> [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/binarybaker2025/locations/us-central1/functions {"name":"projects/binarybaker2025/locations/us-central1/functions/inviteClientOnCreate","buildConfig":{"runtime":"nodejs20","entryPoint":"inviteClientOnCreate","source":{"storageSource":{"bucket":"gcf-v2-uploads-895288452460.us-central1.cloudfunctions.appspot.com","object":"cda07663-369d-409b-8df9-e28cea099351.zip"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""}},"serviceConfig":{"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"binarybaker2025\",\"storageBucket\":\"binarybaker2025.firebasestorage.app\"}","GCLOUD_PROJECT":"binarybaker2025","RESEND_FROM":"bradley@binarybaker.co.za","CLIENT_PORTAL_URL":"https://www.binarybaker.co.za","EVENTARC_CLOUD_EVENT_SOURCE":"projects/binarybaker2025/locations/us-central1/services/inviteClientOnCreate","FUNCTION_SIGNATURE_TYPE":"cloudevent","FUNCTION_TARGET":"inviteClientOnCreate","LOG_EXECUTION_ID":"true"},"secretEnvironmentVariables":[{"key":"RESEND_API_KEY","secret":"RESEND_API_KEY","projectId":"binarybaker2025","version":"1"}],"ingressSettings":null,"timeoutSeconds":null,"serviceAccountEmail":null,"availableMemory":"256Mi","minInstanceCount":null,"maxInstanceCount":null,"maxInstanceRequestConcurrency":80,"availableCpu":"1","vpcConnector":null,"vpcConnectorEgressSettings":null},"labels":{"deployment-tool":"cli-firebase","firebase-functions-hash":"eb412c97ee3fd77a2990802dda83ed7c3e40d868"},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","retryPolicy":"RETRY_POLICY_DO_NOT_RETRY","eventFilters":[{"attribute":"database","value":"(default)"},{"attribute":"namespace","value":"(default)"},{"attribute":"document","value":"clients/{clientId}","operator":"match-path-pattern"}],"triggerRegion":"nam5"}}
+[debug] [2026-01-01T18:58:46.599Z] <<< [apiv2][status] POST https://cloudfunctions.googleapis.com/v2/projects/binarybaker2025/locations/us-central1/functions 400
+[debug] [2026-01-01T18:58:46.599Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/binarybaker2025/locations/us-central1/functions {"error":{"code":400,"message":"Validation failed for trigger projects/binarybaker2025/locations/nam5/triggers/inviteclientoncreate-778253: Invalid resource state for \"\": Permission denied while using the Eventarc Service Agent. If you recently started to use Eventarc, it may take a few minutes before all necessary permissions are propagated to the Service Agent. Otherwise, verify that it has Eventarc Service Agent role.","status":"FAILED_PRECONDITION"}}
+[warn] ⚠  functions: Request to https://cloudfunctions.googleapis.com/v2/projects/binarybaker2025/locations/us-central1/functions?functionId=inviteClientOnCreate had HTTP Error: 400, Validation failed for trigger projects/binarybaker2025/locations/nam5/triggers/inviteclientoncreate-778253: Invalid resource state for "": Permission denied while using the Eventarc Service Agent. If you recently started to use Eventarc, it may take a few minutes before all necessary permissions are propagated to the Service Agent. Otherwise, verify that it has Eventarc Service Agent role. 
+[warn] ⚠  functions: Since this is your first time using 2nd gen functions, we need a little bit longer to finish setting everything up. Retry the deployment in a few minutes. 
+[warn] ⚠  functions:  failed to create function projects/binarybaker2025/locations/us-central1/functions/inviteClientOnCreate 
+[error] Failed to create function projects/binarybaker2025/locations/us-central1/functions/inviteClientOnCreate
+[debug] [2026-01-01T18:58:46.605Z] Total Function Deployment time: 21506
+[debug] [2026-01-01T18:58:46.605Z] 1 Functions Deployed
+[debug] [2026-01-01T18:58:46.606Z] 1 Functions Errored
+[debug] [2026-01-01T18:58:46.606Z] 0 Function Deployments Aborted
+[debug] [2026-01-01T18:58:46.606Z] Average Function Deployment time: 21506
+[info] 
+[info] Functions deploy had errors with the following functions:
+	inviteClientOnCreate(us-central1)
+[debug] [2026-01-01T18:58:46.607Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:58:46.607Z] Checked if tokens are valid: true, expires at: 1767296599717
+[debug] [2026-01-01T18:58:46.607Z] >>> [apiv2][query] GET https://artifactregistry.googleapis.com/v1/projects/binarybaker2025/locations/us-central1/repositories/gcf-artifacts [none]
+[debug] [2026-01-01T18:58:53.637Z] <<< [apiv2][status] GET https://artifactregistry.googleapis.com/v1/projects/binarybaker2025/locations/us-central1/repositories/gcf-artifacts 404
+[debug] [2026-01-01T18:58:53.637Z] <<< [apiv2][body] GET https://artifactregistry.googleapis.com/v1/projects/binarybaker2025/locations/us-central1/repositories/gcf-artifacts {"error":{"code":404,"message":"Requested entity was not found.","status":"NOT_FOUND"}}
+[debug] [2026-01-01T18:58:53.637Z] Failed to check artifact cleanup policy for region us-central1: Request to https://artifactregistry.googleapis.com/v1/projects/binarybaker2025/locations/us-central1/repositories/gcf-artifacts had HTTP Error: 404, Requested entity was not found. {"name":"FirebaseError","children":[],"context":{"body":{"error":{"code":404,"message":"Requested entity was not found.","status":"NOT_FOUND"}},"response":{"statusCode":404}},"exit":1,"message":"Request to https://artifactregistry.googleapis.com/v1/projects/binarybaker2025/locations/us-central1/repositories/gcf-artifacts had HTTP Error: 404, Requested entity was not found.","status":404}
+[debug] [2026-01-01T18:58:53.638Z] Functions deploy failed.
+[debug] [2026-01-01T18:58:53.638Z] {
+  "endpoint": {
+    "id": "inviteClientOnCreate",
+    "project": "binarybaker2025",
+    "region": "us-central1",
+    "entryPoint": "inviteClientOnCreate",
+    "platform": "gcfv2",
+    "runtime": "nodejs20",
+    "eventTrigger": {
+      "eventType": "google.cloud.firestore.document.v1.created",
+      "retry": false,
+      "eventFilters": {
+        "database": "(default)",
+        "namespace": "(default)"
+      },
+      "eventFilterPathPatterns": {
+        "document": "clients/{clientId}"
+      },
+      "region": "nam5"
+    },
+    "labels": {
+      "deployment-tool": "cli-firebase"
+    },
+    "secretEnvironmentVariables": [
+      {
+        "key": "RESEND_API_KEY",
+        "secret": "RESEND_API_KEY",
+        "projectId": "binarybaker2025",
+        "version": "1"
+      }
+    ],
+    "serviceAccount": null,
+    "ingressSettings": null,
+    "availableMemoryMb": null,
+    "timeoutSeconds": null,
+    "maxInstances": null,
+    "minInstances": null,
+    "concurrency": 80,
+    "vpc": null,
+    "environmentVariables": {
+      "FIREBASE_CONFIG": "{\"projectId\":\"binarybaker2025\",\"storageBucket\":\"binarybaker2025.firebasestorage.app\"}",
+      "GCLOUD_PROJECT": "binarybaker2025",
+      "RESEND_FROM": "bradley@binarybaker.co.za",
+      "CLIENT_PORTAL_URL": "https://www.binarybaker.co.za",
+      "EVENTARC_CLOUD_EVENT_SOURCE": "projects/binarybaker2025/locations/us-central1/services/inviteClientOnCreate"
+    },
+    "codebase": "default",
+    "cpu": 1,
+    "targetedByOnly": false,
+    "hash": "eb412c97ee3fd77a2990802dda83ed7c3e40d868"
+  },
+  "op": "create",
+  "original": {
+    "name": "FirebaseError",
+    "children": [],
+    "context": {
+      "function": "projects/binarybaker2025/locations/us-central1/functions/inviteClientOnCreate"
+    },
+    "exit": 1,
+    "message": "Failed to create function projects/binarybaker2025/locations/us-central1/functions/inviteClientOnCreate",
+    "original": {
+      "name": "FirebaseError",
+      "children": [],
+      "context": {
+        "body": {
+          "error": {
+            "code": 400,
+            "message": "Validation failed for trigger projects/binarybaker2025/locations/nam5/triggers/inviteclientoncreate-778253: Invalid resource state for \"\": Permission denied while using the Eventarc Service Agent. If you recently started to use Eventarc, it may take a few minutes before all necessary permissions are propagated to the Service Agent. Otherwise, verify that it has Eventarc Service Agent role.",
+            "status": "FAILED_PRECONDITION"
+          }
+        },
+        "response": {
+          "statusCode": 400
+        }
+      },
+      "exit": 1,
+      "message": "Request to https://cloudfunctions.googleapis.com/v2/projects/binarybaker2025/locations/us-central1/functions?functionId=inviteClientOnCreate had HTTP Error: 400, Validation failed for trigger projects/binarybaker2025/locations/nam5/triggers/inviteclientoncreate-778253: Invalid resource state for \"\": Permission denied while using the Eventarc Service Agent. If you recently started to use Eventarc, it may take a few minutes before all necessary permissions are propagated to the Service Agent. Otherwise, verify that it has Eventarc Service Agent role.",
+      "status": 400
+    },
+    "status": 400,
+    "code": 400
+  }
+}
+[debug] [2026-01-01T18:58:53.639Z] Error: Failed to create function inviteClientOnCreate in region us-central1
+    at /Users/bradleybaker/.nvm/versions/node/v22.16.0/lib/node_modules/firebase-tools/lib/deploy/functions/release/fabricator.js:306:27
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Fabricator.createV2Function (/Users/bradleybaker/.nvm/versions/node/v22.16.0/lib/node_modules/firebase-tools/lib/deploy/functions/release/fabricator.js:290:30)
+    at async Fabricator.createEndpoint (/Users/bradleybaker/.nvm/versions/node/v22.16.0/lib/node_modules/firebase-tools/lib/deploy/functions/release/fabricator.js:137:13)
+    at async handle (/Users/bradleybaker/.nvm/versions/node/v22.16.0/lib/node_modules/firebase-tools/lib/deploy/functions/release/fabricator.js:89:17)
+[error] 
+[error] Error: There was an error deploying functions

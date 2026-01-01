@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   createUserWithEmailAndPassword,
+  getIdTokenResult,
+  onAuthStateChanged,
   signInWithEmailAndPassword,
   updateProfile
 } from "firebase/auth";
@@ -57,6 +59,44 @@ const formatRole = (role) => {
   return `${role.charAt(0).toUpperCase()}${role.slice(1)}`;
 };
 
+const normalizeRole = (role) => {
+  if (!role || typeof role !== "string") {
+    return defaultRole;
+  }
+  const normalized = role.trim().toLowerCase();
+  return allowedRoles.includes(normalized) ? normalized : defaultRole;
+};
+
+const resolveRoleFromClaims = (claims = {}) => {
+  if (claims.admin === true) {
+    return "admin";
+  }
+  if (typeof claims.role === "string") {
+    return normalizeRole(claims.role);
+  }
+  return "";
+};
+
+const resolveRoleFromProfile = (profile = {}) => {
+  if (profile.isAdmin === true || profile.admin === true) {
+    return "admin";
+  }
+  if (typeof profile.role === "string") {
+    return normalizeRole(profile.role);
+  }
+  return "";
+};
+
+const routeForRole = (role) => {
+  const routes = {
+    admin: "/admin",
+    client: "/client",
+    customer: "/customer"
+  };
+
+  return routes[role] || routes[defaultRole];
+};
+
 export default function Portal() {
   const [authMode, setAuthMode] = useState("login");
   const [formValues, setFormValues] = useState(defaultForm);
@@ -64,15 +104,40 @@ export default function Portal() {
   const navigate = useNavigate();
 
   const isRegister = authMode === "register";
-  const normalizeRole = (role) => (allowedRoles.includes(role) ? role : defaultRole);
-  const routeForRole = (role) => {
-    const routes = {
-      admin: "/admin",
-      client: "/client",
-      customer: "/customer"
-    };
 
-    return routes[role] || routes[defaultRole];
+  const resolveUserRole = async (user) => {
+    if (!user) {
+      return defaultRole;
+    }
+
+    const userRef = doc(db, "users", user.uid);
+    const [snapshot, tokenResult] = await Promise.all([
+      getDoc(userRef),
+      getIdTokenResult(user)
+    ]);
+    const claimRole = resolveRoleFromClaims(tokenResult?.claims);
+    let resolvedRole = claimRole || defaultRole;
+
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      const profileRole = resolveRoleFromProfile(data);
+      if (profileRole) {
+        resolvedRole = claimRole || profileRole;
+      }
+    } else {
+      await setDoc(
+        userRef,
+        {
+          role: defaultRole,
+          displayName: user.displayName || "",
+          email: user.email || "",
+          createdAt: serverTimestamp()
+        },
+        { merge: true }
+      );
+    }
+
+    return resolvedRole;
   };
 
   const handleModeChange = (mode) => {
@@ -97,6 +162,23 @@ export default function Portal() {
 
     return errorMessages[error.code] || "Unable to authenticate. Please try again.";
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        return;
+      }
+
+      try {
+        const resolvedRole = await resolveUserRole(user);
+        navigate(routeForRole(resolvedRole), { replace: true });
+      } catch (error) {
+        console.error("Failed to resolve user role:", error);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -139,27 +221,7 @@ export default function Portal() {
         }));
       } else {
         const credential = await signInWithEmailAndPassword(auth, email, password);
-        const userRef = doc(db, "users", credential.user.uid);
-        const snapshot = await getDoc(userRef);
-        let resolvedRole = defaultRole;
-
-        if (snapshot.exists()) {
-          const data = snapshot.data();
-          if (data && data.role) {
-            resolvedRole = normalizeRole(data.role);
-          }
-        } else {
-          await setDoc(
-            userRef,
-            {
-              role: resolvedRole,
-              displayName: credential.user.displayName || "",
-              email: credential.user.email || email,
-              createdAt: serverTimestamp()
-            },
-            { merge: true }
-          );
-        }
+        const resolvedRole = await resolveUserRole(credential.user);
 
         setStatus({
           loading: false,
