@@ -86,6 +86,7 @@ export type Invoice = {
   };
   pdfPath?: string | null;
   public?: {
+    token?: string;
     tokenId?: string | null;
     enabled: boolean;
     createdAt?: Timestamp;

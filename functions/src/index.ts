@@ -1,10 +1,14 @@
 export {
-  createInvoice,
-  updateInvoice,
-  listInvoices,
-  getInvoice
+  billingCreateInvoiceDraft,
+  billingUpdateInvoiceDraft,
+  billingGetInvoice,
+  billingSendInvoice
 } from "./billing/invoices";
-export { createPublicInvoiceLink, servePublicInvoice } from "./billing/publicLinks";
+export {
+  createPublicInvoiceLink,
+  billingGetPublicInvoice,
+  servePublicInvoice
+} from "./billing/publicLinks";
 export { createCheckoutSession, handleStripeWebhook } from "./billing/payments";
 export { nightlyInvoiceSweep } from "./billing/scheduler";
 

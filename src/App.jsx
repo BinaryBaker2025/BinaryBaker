@@ -10,6 +10,7 @@ import AdminBilling from "./pages/AdminBilling.jsx";
 import AdminManagement from "./pages/AdminManagement.jsx";
 import CustomerDashboard from "./pages/CustomerDashboard.jsx";
 import ClientDashboard from "./pages/ClientDashboard.jsx";
+import PublicInvoicePage from "./modules/billing/pages/PublicInvoicePage.tsx";
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
         </Route>
         <Route path="/customer" element={<CustomerDashboard />} />
         <Route path="/client" element={<ClientDashboard />} />
+        <Route path="/p/invoice/:token" element={<PublicInvoicePage />} />
       </Routes>
     </BrowserRouter>
   );
