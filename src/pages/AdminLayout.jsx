@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { signOut } from "firebase/auth";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
-import { Link, NavLink, Outlet } from "react-router-dom";
-import { db } from "../firebase.js";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { auth, db } from "../firebase.js";
 import { buttonGhost } from "./adminData";
+import { useOrg } from "../hooks/useOrg.js";
 
 const navItems = [
   { label: "Overview", to: "/admin" },
@@ -24,30 +26,50 @@ export default function AdminLayout() {
   const [assignments, setAssignments] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const navigate = useNavigate();
+  const { orgId, role, loading: orgLoading, error: orgError } = useOrg();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      navigate("/portal", { replace: true });
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+    }
+  };
 
   useEffect(() => {
-    const subscribe = (collectionName, setter) => {
-      const collectionRef = collection(db, collectionName);
+    const subscribe = (collectionRef, setter) => {
       const dataQuery = query(collectionRef, orderBy("createdAt", "desc"));
       return onSnapshot(dataQuery, (snapshot) => {
         setter(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
       });
     };
 
-    const unsubscribeProjects = subscribe("projects", setProjects);
-    const unsubscribeClients = subscribe("clients", setClients);
-    const unsubscribeAssignments = subscribe("assignments", setAssignments);
-    const unsubscribeInvoices = subscribe("invoices", setInvoices);
-    const unsubscribeTasks = subscribe("tasks", setTasks);
+    const unsubscribeProjects = subscribe(collection(db, "projects"), setProjects);
+    const unsubscribeAssignments = subscribe(collection(db, "assignments"), setAssignments);
+    const unsubscribeTasks = subscribe(collection(db, "tasks"), setTasks);
+
+    const noop = () => {};
+    let unsubscribeClients = noop;
+    let unsubscribeInvoices = noop;
+
+    if (orgId) {
+      unsubscribeClients = subscribe(collection(db, "orgs", orgId, "clients"), setClients);
+      unsubscribeInvoices = subscribe(collection(db, "orgs", orgId, "invoices"), setInvoices);
+    } else {
+      setClients([]);
+      setInvoices([]);
+    }
 
     return () => {
       unsubscribeProjects();
-      unsubscribeClients();
       unsubscribeAssignments();
-      unsubscribeInvoices();
       unsubscribeTasks();
+      unsubscribeClients();
+      unsubscribeInvoices();
     };
-  }, []);
+  }, [orgId]);
 
   return (
     <div className="min-h-screen max-w-6xl mx-auto px-6 pb-12 pt-6">
@@ -59,6 +81,9 @@ export default function AdminLayout() {
           Binary Baker
         </Link>
         <div className="flex flex-wrap gap-3">
+          <button className={buttonGhost} type="button" onClick={handleSignOut}>
+            Sign out
+          </button>
           <Link className={buttonGhost} to="/portal">
             Back to portal
           </Link>
@@ -76,9 +101,19 @@ export default function AdminLayout() {
         ))}
       </nav>
 
+      {!orgLoading && orgError && (
+        <div className="mt-4 rounded-[14px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {orgError}
+        </div>
+      )}
+
       <main className="py-10">
         <Outlet
           context={{
+            orgId,
+            orgRole: role,
+            orgLoading,
+            orgError,
             projects,
             clients,
             assignments,

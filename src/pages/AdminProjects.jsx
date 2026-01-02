@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, doc, serverTimestamp, Timestamp, updateDoc } from "firebase/firestore";
 import { useOutletContext } from "react-router-dom";
+import Dialog from "../components/Dialog.jsx";
 import { db } from "../firebase.js";
 import {
+  buttonGhost,
   buttonPrimary,
+  buttonSubtle,
   cardBase,
   inputBase,
   labelBase,
@@ -26,9 +29,54 @@ const defaultProjectForm = {
   clientId: ""
 };
 
+const defaultProjectEditForm = {
+  name: "",
+  service: projectServices[0],
+  stage: projectStages[0],
+  status: projectStatuses[0],
+  dueDate: "",
+  budget: "",
+  lead: ""
+};
+
+const defaultCurrency = "ZAR";
+
+const parseAmountToMinor = (value) => {
+  if (!value) {
+    return 0;
+  }
+  const normalized = String(value).replace(/[^0-9.]/g, "");
+  if (!normalized) {
+    return 0;
+  }
+  const parsed = Number(normalized);
+  if (Number.isNaN(parsed)) {
+    return 0;
+  }
+  return Math.round(parsed * 100);
+};
+
+const buildClientSnapshot = (client) => {
+  if (!client) {
+    return { name: "Unknown client" };
+  }
+  const primaryEmail =
+    Array.isArray(client.emails) && client.emails.length > 0
+      ? client.emails[0]
+      : client.email || "";
+  return {
+    name: client.name || client.companyName || "Client",
+    email: primaryEmail || undefined,
+    taxNumber: client.taxNumber || undefined,
+    billingAddress: client.billingAddress || undefined
+  };
+};
+
 export default function AdminProjects() {
-  const { projects, clients, assignments } = useOutletContext();
+  const { projects, clients, assignments, orgId } = useOutletContext();
   const [projectForm, setProjectForm] = useState(defaultProjectForm);
+  const [editingProject, setEditingProject] = useState(null);
+  const [editForm, setEditForm] = useState(defaultProjectEditForm);
 
   const clientLookup = useMemo(() => {
     return clients.reduce((acc, client) => {
@@ -87,9 +135,110 @@ export default function AdminProjects() {
         });
       }
 
+      if (orgId) {
+        const client = projectForm.clientId ? clientLookup[projectForm.clientId] : null;
+        const unitPriceMinor = parseAmountToMinor(projectForm.budget);
+        const baseMinor = unitPriceMinor;
+        const lineItem = {
+          itemId: null,
+          name: `Project kickoff: ${trimmedName}`,
+          description: "",
+          quantity: 1,
+          unitPriceMinor,
+          taxId: null,
+          computed: {
+            baseMinor,
+            discountMinor: 0,
+            netMinor: baseMinor,
+            taxMinor: 0,
+            totalMinor: baseMinor
+          }
+        };
+        const totals = {
+          subtotalMinor: baseMinor,
+          discountTotalMinor: 0,
+          taxTotalMinor: 0,
+          totalMinor: baseMinor
+        };
+        const dueDateValue = projectForm.dueDate ? new Date(projectForm.dueDate) : null;
+        const dueDate =
+          dueDateValue && !Number.isNaN(dueDateValue.getTime())
+            ? Timestamp.fromDate(dueDateValue)
+            : null;
+
+        await addDoc(collection(db, "orgs", orgId, "invoices"), {
+          invoiceNumber: "",
+          status: "draft",
+          clientId: projectForm.clientId || "",
+          clientSnapshot: buildClientSnapshot(client),
+          currency: client?.currencyOverride || defaultCurrency,
+          issueDate: Timestamp.now(),
+          dueDate,
+          lineItems: [lineItem],
+          totals,
+          amountPaidMinor: 0,
+          balanceDueMinor: totals.totalMinor,
+          notes: "",
+          projectId: projectRef.id,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      }
+
       setProjectForm(defaultProjectForm);
     } catch (error) {
       console.error("Failed to create project:", error);
+    }
+  };
+
+  const openEdit = (project) => {
+    setEditingProject(project);
+    setEditForm({
+      name: project.name || "",
+      service: projectServices.includes(project.service) ? project.service : projectServices[0],
+      stage: projectStages.includes(project.stage) ? project.stage : projectStages[0],
+      status: projectStatuses.includes(project.status) ? project.status : projectStatuses[0],
+      dueDate: project.dueDate || "",
+      budget: project.budget || "",
+      lead: project.lead || ""
+    });
+  };
+
+  const closeEdit = () => {
+    setEditingProject(null);
+    setEditForm(defaultProjectEditForm);
+  };
+
+  const handleEditChange = (event) => {
+    const { name, value } = event.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditSubmit = async (event) => {
+    event.preventDefault();
+    if (!editingProject) {
+      return;
+    }
+
+    const trimmedName = editForm.name.trim();
+    if (!trimmedName) {
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "projects", editingProject.id), {
+        name: trimmedName,
+        service: editForm.service,
+        stage: editForm.stage,
+        status: editForm.status,
+        dueDate: editForm.dueDate || "",
+        budget: editForm.budget || "",
+        lead: editForm.lead || "",
+        updatedAt: serverTimestamp()
+      });
+      closeEdit();
+    } catch (error) {
+      console.error("Failed to update project:", error);
     }
   };
 
@@ -129,9 +278,18 @@ export default function AdminProjects() {
                       <h4 className="mt-1 text-lg font-semibold">{project.name}</h4>
                       <p className="mt-1 text-sm text-ink/70">{project.stage}</p>
                     </div>
-                    <span className={`${pillBase} ${projectStatusStyles[project.status]}`}>
-                      {project.status}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className={buttonSubtle}
+                        type="button"
+                        onClick={() => openEdit(project)}
+                      >
+                        Edit
+                      </button>
+                      <span className={`${pillBase} ${projectStatusStyles[project.status]}`}>
+                        {project.status}
+                      </span>
+                    </div>
                   </div>
                   <div className="mt-4 grid gap-3 text-xs text-ink/70 sm:grid-cols-3">
                     <div>
@@ -159,7 +317,7 @@ export default function AdminProjects() {
                     )}
                     {assignedClientIds.map((clientId) => {
                       const client = clientLookup[clientId];
-                      const label = client?.company || client?.name || "Unassigned";
+                      const label = client?.companyName || client?.name || "Unassigned";
                       return (
                         <span key={`${project.id}-${clientId}`} className={`${pillBase} bg-ink/5 text-ink/70`}>
                           {label}
@@ -282,7 +440,7 @@ export default function AdminProjects() {
                 <option value="">Select client</option>
                 {clients.map((client) => (
                   <option key={client.id} value={client.id}>
-                    {client.company} ({client.name})
+                    {client.companyName || client.name} ({client.name})
                   </option>
                 ))}
               </select>
@@ -290,9 +448,114 @@ export default function AdminProjects() {
             <button className={buttonPrimary} type="submit">
               Create project
             </button>
+            <p className="text-xs text-ink/60">
+              A draft invoice is created automatically for every new project.
+            </p>
           </div>
         </form>
       </section>
+
+      <Dialog open={Boolean(editingProject)} title="Edit project" onClose={closeEdit}>
+        <form className="grid gap-4" onSubmit={handleEditSubmit}>
+          <label className={labelBase}>
+            Project name
+            <input
+              className={inputBase}
+              name="name"
+              value={editForm.name}
+              onChange={handleEditChange}
+              required
+            />
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className={labelBase}>
+              Service track
+              <select
+                className={inputBase}
+                name="service"
+                value={editForm.service}
+                onChange={handleEditChange}
+              >
+                {projectServices.map((service) => (
+                  <option key={service} value={service}>
+                    {service}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={labelBase}>
+              Stage
+              <select
+                className={inputBase}
+                name="stage"
+                value={editForm.stage}
+                onChange={handleEditChange}
+              >
+                {projectStages.map((stage) => (
+                  <option key={stage} value={stage}>
+                    {stage}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className={labelBase}>
+              Project lead
+              <input
+                className={inputBase}
+                name="lead"
+                value={editForm.lead}
+                onChange={handleEditChange}
+              />
+            </label>
+            <label className={labelBase}>
+              Due date
+              <input
+                className={inputBase}
+                type="date"
+                name="dueDate"
+                value={editForm.dueDate}
+                onChange={handleEditChange}
+              />
+            </label>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className={labelBase}>
+              Budget
+              <input
+                className={inputBase}
+                name="budget"
+                value={editForm.budget}
+                onChange={handleEditChange}
+              />
+            </label>
+            <label className={labelBase}>
+              Status
+              <select
+                className={inputBase}
+                name="status"
+                value={editForm.status}
+                onChange={handleEditChange}
+              >
+                {projectStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <button className={buttonPrimary} type="submit">
+              Save changes
+            </button>
+            <button className={buttonGhost} type="button" onClick={closeEdit}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </Dialog>
     </div>
   );
 }

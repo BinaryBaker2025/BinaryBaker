@@ -35,7 +35,7 @@ const buildInviteEmail = ({ name, resetLink }) => {
 };
 
 exports.inviteClientOnCreate = onDocumentCreated(
-  { document: "clients/{clientId}", retry: false, secrets: [resendApiKey] },
+  { document: "orgs/{orgId}/clients/{clientId}", retry: false, secrets: [resendApiKey] },
   async (event) => {
     const snapshot = event.data;
     if (!snapshot) {
@@ -43,7 +43,9 @@ exports.inviteClientOnCreate = onDocumentCreated(
     }
 
     const client = snapshot.data();
-    if (!client || !client.email) {
+    const emails = Array.isArray(client?.emails) ? client.emails : [];
+    const primaryEmail = emails[0] || client?.email;
+    if (!client || !primaryEmail) {
       return;
     }
 
@@ -64,8 +66,8 @@ exports.inviteClientOnCreate = onDocumentCreated(
       return;
     }
 
-    const email = String(client.email).trim().toLowerCase();
-    const displayName = client.name || client.displayName || "";
+    const email = String(primaryEmail).trim().toLowerCase();
+    const displayName = client.contactName || client.name || client.companyName || "";
     const resend = new Resend(resendKey);
     const fromAddress = resendFrom.value();
     const portalLink = portalUrl.value();

@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { Link, useNavigate } from "react-router-dom";
+import { auth } from "../firebase.js";
 
 const highlights = [
   {
@@ -15,7 +17,21 @@ const highlights = [
   }
 ];
 
+const actionButton =
+  "inline-flex items-center justify-center rounded-full border border-ink/20 bg-cream/70 px-5 py-3 text-sm font-semibold transition duration-200 hover:-translate-y-1 hover:shadow-bb";
+
 export default function ClientDashboard() {
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      navigate("/portal", { replace: true });
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen max-w-6xl mx-auto px-6 pb-12 pt-6">
       <header className="flex flex-wrap items-center justify-between gap-6 py-4">
@@ -26,8 +42,11 @@ export default function ClientDashboard() {
           Binary Baker
         </Link>
         <div className="flex flex-wrap gap-3">
+          <button className={actionButton} type="button" onClick={handleSignOut}>
+            Sign out
+          </button>
           <Link
-            className="inline-flex items-center justify-center rounded-full border border-ink/20 bg-cream/70 px-5 py-3 text-sm font-semibold transition duration-200 hover:-translate-y-1 hover:shadow-bb"
+            className={actionButton}
             to="/portal"
           >
             Back to portal

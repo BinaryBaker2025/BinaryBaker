@@ -2,6 +2,8 @@ export const buttonBase =
   "inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition duration-200 hover:-translate-y-1 hover:shadow-bb";
 export const buttonPrimary = `${buttonBase} bg-gradient-to-br from-deep-blue to-violet text-cream`;
 export const buttonGhost = `${buttonBase} border border-ink/20 bg-cream/70`;
+export const buttonSubtle =
+  "inline-flex items-center justify-center rounded-full border border-ink/15 bg-white/70 px-3 py-1 text-xs font-semibold text-ink/60 transition hover:text-ink hover:shadow-soft";
 
 export const cardBase = "rounded-[22px] border border-ink/10 bg-cream/90 p-6 shadow-soft";
 export const rowCard = "rounded-[16px] border border-ink/10 bg-white/70 p-4";
@@ -21,9 +23,17 @@ export const projectStages = [
   "Launch"
 ];
 export const projectStatuses = ["Planned", "In progress", "Review", "On hold", "Complete"];
-export const clientStatuses = ["Active", "Invited", "Paused"];
+export const clientStatuses = ["active", "inactive"];
 export const accessLevels = ["Viewer", "Billing", "Full access", "Owner"];
-export const invoiceStatuses = ["Draft", "Sent", "Paid", "Overdue"];
+export const invoiceStatuses = [
+  "draft",
+  "sent",
+  "viewed",
+  "partially_paid",
+  "paid",
+  "overdue",
+  "void"
+];
 export const taskStatuses = ["Backlog", "In progress", "Review", "Done"];
 
 export const projectStatusStyles = {
@@ -35,16 +45,18 @@ export const projectStatusStyles = {
 };
 
 export const clientStatusStyles = {
-  Active: "bg-emerald-100 text-emerald-700",
-  Invited: "bg-blue/15 text-deep-blue",
-  Paused: "bg-amber-100 text-amber-700"
+  active: "bg-emerald-100 text-emerald-700",
+  inactive: "bg-amber-100 text-amber-700"
 };
 
 export const invoiceStatusStyles = {
-  Draft: "bg-ink/5 text-ink/70",
-  Sent: "bg-blue/15 text-deep-blue",
-  Paid: "bg-emerald-100 text-emerald-700",
-  Overdue: "bg-rose-100 text-rose-600"
+  draft: "bg-ink/5 text-ink/70",
+  sent: "bg-blue/15 text-deep-blue",
+  viewed: "bg-violet/15 text-violet",
+  partially_paid: "bg-amber-100 text-amber-700",
+  paid: "bg-emerald-100 text-emerald-700",
+  overdue: "bg-rose-100 text-rose-600",
+  void: "bg-ink/10 text-ink/60"
 };
 
 export const accessStyles = {

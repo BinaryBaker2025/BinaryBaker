@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { useOutletContext } from "react-router-dom";
+import Dialog from "../components/Dialog.jsx";
 import { db } from "../firebase.js";
 import {
+  buttonGhost,
   buttonPrimary,
+  buttonSubtle,
   cardBase,
   inputBase,
   labelBase,
@@ -21,6 +24,8 @@ const defaultTaskForm = {
 export default function AdminManagement() {
   const { tasks, projects } = useOutletContext();
   const [taskForm, setTaskForm] = useState(defaultTaskForm);
+  const [editingTask, setEditingTask] = useState(null);
+  const [editForm, setEditForm] = useState(defaultTaskForm);
 
   const projectLookup = useMemo(() => {
     return projects.reduce((acc, project) => {
@@ -53,6 +58,53 @@ export default function AdminManagement() {
       setTaskForm(defaultTaskForm);
     } catch (error) {
       console.error("Failed to add task:", error);
+    }
+  };
+
+  const openEdit = (task) => {
+    setEditingTask(task);
+    setEditForm({
+      title: task.title || "",
+      projectId: task.projectId || "",
+      owner: task.owner || "",
+      status: taskStatuses.includes(task.status) ? task.status : taskStatuses[0],
+      dueDate: task.dueDate || ""
+    });
+  };
+
+  const closeEdit = () => {
+    setEditingTask(null);
+    setEditForm(defaultTaskForm);
+  };
+
+  const handleEditChange = (event) => {
+    const { name, value } = event.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditSubmit = async (event) => {
+    event.preventDefault();
+    if (!editingTask) {
+      return;
+    }
+
+    const trimmedTitle = editForm.title.trim();
+    if (!trimmedTitle || !editForm.projectId) {
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "tasks", editingTask.id), {
+        title: trimmedTitle,
+        projectId: editForm.projectId,
+        owner: editForm.owner.trim() || "Unassigned",
+        status: editForm.status,
+        dueDate: editForm.dueDate || "",
+        updatedAt: serverTimestamp()
+      });
+      closeEdit();
+    } catch (error) {
+      console.error("Failed to update task:", error);
     }
   };
 
@@ -95,7 +147,16 @@ export default function AdminManagement() {
                       const project = projectLookup[task.projectId];
                       return (
                         <article key={task.id} className="rounded-[12px] border border-ink/10 bg-white/80 p-3">
-                          <p className="text-sm font-semibold">{task.title}</p>
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm font-semibold">{task.title}</p>
+                            <button
+                              className={buttonSubtle}
+                              type="button"
+                              onClick={() => openEdit(task)}
+                            >
+                              Edit
+                            </button>
+                          </div>
                           <p className="mt-1 text-xs text-ink/60">
                             {project?.name || "Unknown project"}
                           </p>
@@ -190,6 +251,83 @@ export default function AdminManagement() {
           </div>
         </form>
       </section>
+
+      <Dialog open={Boolean(editingTask)} title="Edit task" onClose={closeEdit}>
+        <form className="grid gap-4" onSubmit={handleEditSubmit}>
+          <label className={labelBase}>
+            Task title
+            <input
+              className={inputBase}
+              name="title"
+              value={editForm.title}
+              onChange={handleEditChange}
+              required
+            />
+          </label>
+          <label className={labelBase}>
+            Project
+            <select
+              className={inputBase}
+              name="projectId"
+              value={editForm.projectId}
+              onChange={handleEditChange}
+              required
+            >
+              <option value="">Select project</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className={labelBase}>
+              Owner
+              <input
+                className={inputBase}
+                name="owner"
+                value={editForm.owner}
+                onChange={handleEditChange}
+                placeholder="Team member"
+              />
+            </label>
+            <label className={labelBase}>
+              Status
+              <select
+                className={inputBase}
+                name="status"
+                value={editForm.status}
+                onChange={handleEditChange}
+              >
+                {taskStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <label className={labelBase}>
+            Due date
+            <input
+              className={inputBase}
+              type="date"
+              name="dueDate"
+              value={editForm.dueDate}
+              onChange={handleEditChange}
+            />
+          </label>
+          <div className="flex flex-wrap gap-3">
+            <button className={buttonPrimary} type="submit">
+              Save changes
+            </button>
+            <button className={buttonGhost} type="button" onClick={closeEdit}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </Dialog>
     </div>
   );
 }

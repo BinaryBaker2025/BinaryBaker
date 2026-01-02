@@ -4,16 +4,26 @@ import { buttonGhost, buttonPrimary, cardBase } from "./adminData";
 export default function AdminDashboard() {
   const { projects, clients, assignments, invoices, tasks } = useOutletContext();
 
+  const resolveInvoiceStatus = (status) =>
+    String(status || "").toLowerCase().replace(/\s+/g, "_");
+  const resolveClientStatus = (status) => String(status || "").toLowerCase();
+
   const activeProjectCount = projects.filter((project) => project.status !== "Complete").length;
   const clientsWithAccess = new Set(assignments.map((assignment) => assignment.clientId)).size;
-  const openInvoiceCount = invoices.filter((invoice) => invoice.status !== "Paid").length;
+  const openInvoiceCount = invoices.filter((invoice) => {
+    const status = resolveInvoiceStatus(invoice.status);
+    return status !== "paid" && status !== "void";
+  }).length;
   const tasksInMotion = tasks.filter((task) => task.status !== "Done").length;
 
-  const invitedClientsCount = clients.filter((client) => client.status === "Invited").length;
-  const approvalsCount = tasks.filter((task) => task.status === "Review").length;
-  const followUpInvoicesCount = invoices.filter(
-    (invoice) => invoice.status === "Sent" || invoice.status === "Overdue"
+  const inactiveClientsCount = clients.filter(
+    (client) => resolveClientStatus(client.status) === "inactive"
   ).length;
+  const approvalsCount = tasks.filter((task) => task.status === "Review").length;
+  const followUpInvoicesCount = invoices.filter((invoice) => {
+    const status = resolveInvoiceStatus(invoice.status);
+    return status === "sent" || status === "overdue" || status === "partially_paid";
+  }).length;
   const projectsOnHoldCount = projects.filter((project) => project.status === "On hold").length;
 
   const stats = [
@@ -27,7 +37,7 @@ export default function AdminDashboard() {
     { label: "Approvals waiting", value: approvalsCount },
     { label: "Invoices to chase", value: followUpInvoicesCount },
     { label: "Projects on hold", value: projectsOnHoldCount },
-    { label: "Client invites out", value: invitedClientsCount }
+    { label: "Inactive clients", value: inactiveClientsCount }
   ];
 
   return (

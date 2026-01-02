@@ -1,11 +1,14 @@
 import { useMemo, useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { useOutletContext } from "react-router-dom";
+import Dialog from "../components/Dialog.jsx";
 import { db } from "../firebase.js";
 import {
   accessLevels,
   accessStyles,
+  buttonGhost,
   buttonPrimary,
+  buttonSubtle,
   cardBase,
   inputBase,
   labelBase,
@@ -19,9 +22,18 @@ const defaultAssignmentForm = {
   access: accessLevels[2]
 };
 
+const defaultAssignmentEditForm = {
+  projectId: "",
+  clientId: "",
+  access: accessLevels[2],
+  lastActive: ""
+};
+
 export default function AdminAccess() {
   const { assignments, projects, clients } = useOutletContext();
   const [assignmentForm, setAssignmentForm] = useState(defaultAssignmentForm);
+  const [editingAssignment, setEditingAssignment] = useState(null);
+  const [editForm, setEditForm] = useState(defaultAssignmentEditForm);
 
   const projectLookup = useMemo(() => {
     return projects.reduce((acc, project) => {
@@ -71,6 +83,60 @@ export default function AdminAccess() {
     }
   };
 
+  const openEdit = (assignment) => {
+    setEditingAssignment(assignment);
+    setEditForm({
+      projectId: assignment.projectId || "",
+      clientId: assignment.clientId || "",
+      access: accessLevels.includes(assignment.access) ? assignment.access : accessLevels[2],
+      lastActive: assignment.lastActive || ""
+    });
+  };
+
+  const closeEdit = () => {
+    setEditingAssignment(null);
+    setEditForm(defaultAssignmentEditForm);
+  };
+
+  const handleEditChange = (event) => {
+    const { name, value } = event.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditSubmit = async (event) => {
+    event.preventDefault();
+    if (!editingAssignment) {
+      return;
+    }
+
+    if (!editForm.projectId || !editForm.clientId) {
+      return;
+    }
+
+    const alreadyAssigned = assignments.some(
+      (assignment) =>
+        assignment.id !== editingAssignment.id &&
+        assignment.projectId === editForm.projectId &&
+        assignment.clientId === editForm.clientId
+    );
+    if (alreadyAssigned) {
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "assignments", editingAssignment.id), {
+        projectId: editForm.projectId,
+        clientId: editForm.clientId,
+        access: editForm.access,
+        lastActive: editForm.lastActive.trim() || "Recently updated",
+        updatedAt: serverTimestamp()
+      });
+      closeEdit();
+    } catch (error) {
+      console.error("Failed to update assignment:", error);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <section>
@@ -98,6 +164,10 @@ export default function AdminAccess() {
             {assignments.map((assignment) => {
               const project = projectLookup[assignment.projectId];
               const client = clientLookup[assignment.clientId];
+              const primaryEmail =
+                Array.isArray(client?.emails) && client.emails.length > 0
+                  ? client.emails[0]
+                  : client?.email;
               return (
                 <article key={assignment.id} className={rowCard}>
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -109,15 +179,25 @@ export default function AdminAccess() {
                         {project?.name || "Unknown project"}
                       </h4>
                       <p className="mt-1 text-sm text-ink/70">
-                        {client?.name || "Unknown client"} / {client?.company || "No company"}
+                        {client?.name || "Unknown client"} /{" "}
+                        {client?.companyName || client?.company || "No company"}
                       </p>
                     </div>
-                    <span className={`${pillBase} ${accessStyles[assignment.access]}`}>
-                      {assignment.access}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className={buttonSubtle}
+                        type="button"
+                        onClick={() => openEdit(assignment)}
+                      >
+                        Edit
+                      </button>
+                      <span className={`${pillBase} ${accessStyles[assignment.access]}`}>
+                        {assignment.access}
+                      </span>
+                    </div>
                   </div>
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-ink/60">
-                    <span>{client?.email || "No email on file"}</span>
+                    <span>{primaryEmail || "No email on file"}</span>
                     <span>Last active: {assignment.lastActive || "Recently added"}</span>
                   </div>
                 </article>
@@ -161,7 +241,7 @@ export default function AdminAccess() {
                 <option value="">Select client</option>
                 {clients.map((client) => (
                   <option key={client.id} value={client.id}>
-                    {client.company} ({client.name})
+                    {client.companyName || client.name} ({client.name})
                   </option>
                 ))}
               </select>
@@ -187,6 +267,78 @@ export default function AdminAccess() {
           </div>
         </form>
       </section>
+
+      <Dialog open={Boolean(editingAssignment)} title="Edit assignment" onClose={closeEdit}>
+        <form className="grid gap-4" onSubmit={handleEditSubmit}>
+          <label className={labelBase}>
+            Project
+            <select
+              className={inputBase}
+              name="projectId"
+              value={editForm.projectId}
+              onChange={handleEditChange}
+              required
+            >
+              <option value="">Select project</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className={labelBase}>
+            Client
+            <select
+              className={inputBase}
+              name="clientId"
+              value={editForm.clientId}
+              onChange={handleEditChange}
+              required
+            >
+              <option value="">Select client</option>
+              {clients.map((client) => (
+                <option key={client.id} value={client.id}>
+                  {client.companyName || client.name} ({client.name})
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className={labelBase}>
+            Access level
+            <select
+              className={inputBase}
+              name="access"
+              value={editForm.access}
+              onChange={handleEditChange}
+            >
+              {accessLevels.map((access) => (
+                <option key={access} value={access}>
+                  {access}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className={labelBase}>
+            Last active
+            <input
+              className={inputBase}
+              name="lastActive"
+              value={editForm.lastActive}
+              onChange={handleEditChange}
+              placeholder="Recently updated"
+            />
+          </label>
+          <div className="flex flex-wrap gap-3">
+            <button className={buttonPrimary} type="submit">
+              Save changes
+            </button>
+            <button className={buttonGhost} type="button" onClick={closeEdit}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </Dialog>
     </div>
   );
 }
