@@ -22,7 +22,7 @@ const defaultTaskForm = {
 };
 
 export default function AdminManagement() {
-  const { tasks, projects } = useOutletContext();
+  const { tasks, projects, orgId } = useOutletContext();
   const [taskForm, setTaskForm] = useState(defaultTaskForm);
   const [editingTask, setEditingTask] = useState(null);
   const [editForm, setEditForm] = useState(defaultTaskForm);
@@ -45,9 +45,13 @@ export default function AdminManagement() {
     if (!trimmedTitle || !taskForm.projectId) {
       return;
     }
+    if (!orgId) {
+      console.error("Cannot create task without org membership.");
+      return;
+    }
 
     try {
-      await addDoc(collection(db, "tasks"), {
+      await addDoc(collection(db, "orgs", orgId, "tasks"), {
         title: trimmedTitle,
         projectId: taskForm.projectId,
         owner: taskForm.owner.trim() || "Unassigned",
@@ -92,9 +96,13 @@ export default function AdminManagement() {
     if (!trimmedTitle || !editForm.projectId) {
       return;
     }
+    if (!orgId) {
+      console.error("Cannot update task without org membership.");
+      return;
+    }
 
     try {
-      await updateDoc(doc(db, "tasks", editingTask.id), {
+      await updateDoc(doc(db, "orgs", orgId, "tasks", editingTask.id), {
         title: trimmedTitle,
         projectId: editForm.projectId,
         owner: editForm.owner.trim() || "Unassigned",

@@ -99,19 +99,15 @@ const sanitizeInvoice = (id: string, invoice: Invoice): PublicInvoiceResponse =>
   };
 };
 
-export const createPublicInvoiceLink = onCall<
-  { invoiceId: string },
-  { publicId: string }
->(async (request) => {
-  assertAuth(request.auth);
-  // TODO: Generate a public link token and persist it.
-  throw new HttpsError("unimplemented", "TODO: implement createPublicInvoiceLink.");
-});
+export const createPublicInvoiceLink = onCall<{ invoiceId: string }, { publicId: string }>(
+  (request) => {
+    assertAuth(request.auth);
+    // TODO: Generate a public link token and persist it.
+    throw new HttpsError("unimplemented", "TODO: implement createPublicInvoiceLink.");
+  }
+);
 
-export const billingGetPublicInvoice = onCall<
-  { token: string },
-  { invoice: PublicInvoiceResponse }
->(async (request) => {
+export const billingGetPublicInvoice = onCall<{ token: string }>(async (request) => {
   const { token } = request.data || {};
 
   if (!token || typeof token !== "string") {

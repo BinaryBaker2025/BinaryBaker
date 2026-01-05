@@ -1,7 +1,11 @@
 import { getApps, initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
+import { defineSecret, defineString } from "firebase-functions/params";
 import { onCall } from "firebase-functions/v2/https";
 import { randomBytes } from "crypto";
+import PDFDocument from "pdfkit";
+import { Resend } from "resend";
 import { assertAuth, assertMember, assertRole, throwHttpsError } from "./authz";
 import { computeLineItem, computeTotals } from "./calc";
 import { getAndIncrementInvoiceNumber } from "./numbering";
@@ -10,6 +14,7 @@ import type { Invoice, LineItem } from "./types";
 type CreateInvoiceDraftRequest = {
   orgId: string;
   clientId: string;
+  projectId?: string;
   issueDate?: unknown;
   dueDate?: unknown;
   currency?: string;
@@ -46,12 +51,26 @@ type SendInvoiceRequest = {
 
 const DEFAULT_CURRENCY = "ZAR";
 const ALLOWED_CREATE_ROLES = ["owner", "admin", "finance", "sales"];
+const resendApiKey = defineSecret("RESEND_API_KEY");
+const resendFrom = defineString("RESEND_FROM", {
+  default: "Binary Baker <hello@binarybaker.com>"
+});
+const clientPortalUrl = defineString("CLIENT_PORTAL_URL", {
+  default: "https://yourdomain.com"
+});
 
 const ensureFirestore = () => {
   if (!getApps().length) {
     initializeApp();
   }
   return getFirestore();
+};
+
+const ensureStorage = () => {
+  if (!getApps().length) {
+    initializeApp();
+  }
+  return getStorage();
 };
 
 const parseTimestamp = (value: unknown, fallback: Timestamp): Timestamp => {
@@ -137,7 +156,7 @@ const fetchTaxesById = async (
 
 const getSettingsData = async (orgId: string) => {
   const db = ensureFirestore();
-  const settingsRef = db.doc(`orgs/${orgId}/settings`);
+  const settingsRef = db.doc(`orgs/${orgId}/settings/main`);
   const snapshot = await settingsRef.get();
   return snapshot.exists ? snapshot.data() || {} : {};
 };
@@ -151,12 +170,24 @@ const buildClientSnapshot = (client: FirebaseFirestore.DocumentData | undefined)
       ? client.emails[0]
       : client.email || undefined;
 
-  return {
-    name: client.name || client.companyName || "Client",
-    email: primaryEmail,
-    taxNumber: client.taxNumber || undefined,
-    billingAddress: client.billingAddress || undefined
+  const snapshot: {
+    name: string;
+    email?: string;
+    taxNumber?: string;
+    billingAddress?: unknown;
+  } = {
+    name: client.name || client.companyName || "Client"
   };
+  if (primaryEmail) {
+    snapshot.email = primaryEmail;
+  }
+  if (client.taxNumber) {
+    snapshot.taxNumber = client.taxNumber;
+  }
+  if (client.billingAddress) {
+    snapshot.billingAddress = client.billingAddress;
+  }
+  return snapshot;
 };
 
 const buildInvoicePayload = async ({
@@ -209,7 +240,21 @@ const buildInvoicePayload = async ({
   const issue = parseTimestamp(issueDate, Timestamp.now());
   const due = dueDate ? parseTimestamp(dueDate, issue) : null;
 
-  return {
+  const payload: {
+    clientSnapshot: ReturnType<typeof buildClientSnapshot>;
+    clientName: string;
+    currency: string;
+    lineItems: LineItem[];
+    totals: ReturnType<typeof computeTotals>;
+    amountPaidMinor: number;
+    balanceDueMinor: number;
+    issueDate: Timestamp;
+    dueDate: Timestamp | null;
+    notes: string;
+    terms: string;
+    taxMode: string;
+    projectId?: string;
+  } = {
     clientSnapshot: buildClientSnapshot(clientData),
     clientName: clientData?.name || clientData?.companyName || "",
     currency: resolvedCurrency,
@@ -221,9 +266,12 @@ const buildInvoicePayload = async ({
     dueDate: due,
     notes: notes || "",
     terms: terms || "",
-    taxMode,
-    projectId: projectId || undefined
+    taxMode
   };
+  if (projectId) {
+    payload.projectId = projectId;
+  }
+  return payload;
 };
 
 const generatePublicToken = () => randomBytes(16).toString("hex");
@@ -235,6 +283,109 @@ const normalizeEmails = (value: unknown): string[] => {
   return value
     .map((email) => (typeof email === "string" ? email.trim() : ""))
     .filter((email) => email.length > 0);
+};
+
+const resolvePublicBaseUrl = () => {
+  const base = clientPortalUrl.value();
+  try {
+    return new URL(base).origin;
+  } catch (error) {
+    return base.replace(/\/+$/, "");
+  }
+};
+
+const formatCurrency = (amountMinor: number, currency: string) => {
+  const value = Number.isFinite(amountMinor) ? amountMinor / 100 : 0;
+  try {
+    return new Intl.NumberFormat("en-ZA", { style: "currency", currency }).format(value);
+  } catch (error) {
+    return `${currency} ${value.toFixed(2)}`;
+  }
+};
+
+const generateInvoicePdf = async ({
+  invoice,
+  companyName
+}: {
+  invoice: Invoice;
+  companyName: string;
+}): Promise<Buffer> => {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: "A4", margin: 50 });
+    const chunks: Buffer[] = [];
+
+    doc.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    const currency = invoice.currency || DEFAULT_CURRENCY;
+    const clientName = invoice.clientSnapshot?.name || invoice.clientName || "Client";
+    const issuedAt = invoice.issueDate?.toDate?.();
+    const dueAt = invoice.dueDate?.toDate?.();
+
+    doc.fontSize(20).text(companyName || "Invoice", { align: "left" });
+    doc.moveDown(0.5);
+    doc.fontSize(12).text(`Invoice: ${invoice.invoiceNumber || invoice.id}`);
+    doc.text(`Status: ${invoice.status}`);
+    if (issuedAt) {
+      doc.text(`Issue date: ${issuedAt.toISOString().slice(0, 10)}`);
+    }
+    if (dueAt) {
+      doc.text(`Due date: ${dueAt.toISOString().slice(0, 10)}`);
+    }
+    doc.moveDown();
+    doc.fontSize(12).text(`Bill to: ${clientName}`);
+    if (invoice.clientSnapshot?.email) {
+      doc.text(`Email: ${invoice.clientSnapshot.email}`);
+    }
+    doc.moveDown();
+    doc.fontSize(12).text("Line items");
+    doc.moveDown(0.5);
+
+    const lines = Array.isArray(invoice.lineItems) ? invoice.lineItems : [];
+    lines.forEach((line) => {
+      const totalMinor = line.computed?.totalMinor ?? 0;
+      doc
+        .fontSize(11)
+        .text(
+          `${line.name} · Qty ${line.quantity} · ${formatCurrency(
+            totalMinor,
+            currency
+          )}`,
+          {
+            continued: false
+          }
+        );
+      if (line.description) {
+        doc.fontSize(10).fillColor("gray").text(line.description);
+        doc.fillColor("black");
+      }
+    });
+
+    doc.moveDown();
+    const totals = invoice.totals;
+    if (totals) {
+      doc.fontSize(11).text(`Subtotal: ${formatCurrency(totals.subtotalMinor, currency)}`);
+      doc.text(
+        `Discounts: ${formatCurrency(totals.discountTotalMinor, currency)}`
+      );
+      doc.text(`Tax: ${formatCurrency(totals.taxTotalMinor, currency)}`);
+      doc.fontSize(12).text(`Total: ${formatCurrency(totals.totalMinor, currency)}`);
+    }
+
+    if (invoice.notes) {
+      doc.moveDown();
+      doc.fontSize(11).text("Notes");
+      doc.fontSize(10).text(invoice.notes);
+    }
+    if (invoice.terms) {
+      doc.moveDown();
+      doc.fontSize(11).text("Terms");
+      doc.fontSize(10).text(invoice.terms);
+    }
+
+    doc.end();
+  });
 };
 
 const writeAuditLog = async ({
@@ -265,7 +416,7 @@ const writeAuditLog = async ({
 
 export const billingCreateInvoiceDraft = onCall<CreateInvoiceDraftRequest>(async (request) => {
   const uid = assertAuth(request.auth);
-  const { orgId, clientId, issueDate, dueDate, currency, lineItems, notes, terms } =
+  const { orgId, clientId, projectId, issueDate, dueDate, currency, lineItems, notes, terms } =
     request.data || {};
 
   if (!orgId || !clientId) {
@@ -285,10 +436,11 @@ export const billingCreateInvoiceDraft = onCall<CreateInvoiceDraftRequest>(async
     currency,
     lineItems: Array.isArray(lineItems) ? lineItems : [],
     notes,
-    terms
+    terms,
+    projectId
   });
 
-  const invoiceRef = await db.collection(`orgs/${orgId}/invoices`).add({
+  const invoiceData: FirebaseFirestore.DocumentData = {
     invoiceNumber,
     status: "draft",
     clientId,
@@ -305,7 +457,12 @@ export const billingCreateInvoiceDraft = onCall<CreateInvoiceDraftRequest>(async
     terms: payload.terms,
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp()
-  });
+  };
+  if (projectId) {
+    invoiceData.projectId = projectId;
+  }
+
+  const invoiceRef = await db.collection(`orgs/${orgId}/invoices`).add(invoiceData);
 
   return { invoiceId: invoiceRef.id };
 });
@@ -408,73 +565,135 @@ export const billingGetInvoice = onCall<GetInvoiceRequest>(async (request) => {
   return { invoice: { id: snapshot.id, ...(snapshot.data() as object) } };
 });
 
-export const billingSendInvoice = onCall<SendInvoiceRequest>(async (request) => {
-  const uid = assertAuth(request.auth);
-  const { orgId, invoiceId, toEmails, ccEmails } = request.data || {};
+export const billingSendInvoice = onCall<SendInvoiceRequest>(
+  { secrets: [resendApiKey] },
+  async (request) => {
+    const uid = assertAuth(request.auth);
+    const { orgId, invoiceId, toEmails, ccEmails } = request.data || {};
 
-  if (!orgId || !invoiceId) {
-    throwHttpsError("invalid-argument", "orgId and invoiceId are required.");
-  }
-
-  await assertRole(orgId, uid, ALLOWED_CREATE_ROLES);
-
-  const db = ensureFirestore();
-  const invoiceRef = db.doc(`orgs/${orgId}/invoices/${invoiceId}`);
-  const snapshot = await invoiceRef.get();
-
-  if (!snapshot.exists) {
-    throwHttpsError("not-found", "Invoice not found.");
-  }
-
-  const invoice = snapshot.data() as Invoice;
-  if (invoice.status === "void" || invoice.status === "paid" || invoice.void) {
-    throwHttpsError(
-      "failed-precondition",
-      "Cannot send a void or fully paid invoice."
-    );
-  }
-
-  const token = generatePublicToken();
-  const pdfPath = `invoices/${invoiceId}.pdf`;
-  const normalizedTo = normalizeEmails(toEmails);
-  const normalizedCc = normalizeEmails(ccEmails);
-
-  await invoiceRef.set(
-    {
-      status: "sent",
-      sentAt: FieldValue.serverTimestamp(),
-      pdfPath,
-      public: {
-        token,
-        enabled: true,
-        createdAt: FieldValue.serverTimestamp(),
-        revokedAt: null
-      },
-      updatedAt: FieldValue.serverTimestamp()
-    },
-    { merge: true }
-  );
-
-  await writeAuditLog({
-    orgId,
-    uid,
-    action: "invoice.sent",
-    entityType: "invoice",
-    entityId: invoiceId,
-    metadata: {
-      invoiceNumber: invoice.invoiceNumber,
-      toEmails: normalizedTo,
-      ccEmails: normalizedCc
+    if (!orgId || !invoiceId) {
+      throwHttpsError("invalid-argument", "orgId and invoiceId are required.");
     }
-  });
 
-  console.info("billingSendInvoice stub", {
-    orgId,
-    invoiceId,
-    toEmails: normalizedTo,
-    ccEmails: normalizedCc,
-    pdfPath
-  });
+    await assertRole(orgId, uid, ALLOWED_CREATE_ROLES);
 
-  return { publicUrl: `/p/invoice/${token}` };
-});
+    const db = ensureFirestore();
+    const invoiceRef = db.doc(`orgs/${orgId}/invoices/${invoiceId}`);
+    const snapshot = await invoiceRef.get();
+
+    if (!snapshot.exists) {
+      throwHttpsError("not-found", "Invoice not found.");
+    }
+
+    const invoice = snapshot.data() as Invoice;
+    if (invoice.status === "void" || invoice.status === "paid" || invoice.void) {
+      throwHttpsError(
+        "failed-precondition",
+        "Cannot send a void or fully paid invoice."
+      );
+    }
+
+    const existingToken =
+      invoice.public?.token && invoice.public.enabled && !invoice.public.revokedAt
+        ? invoice.public.token
+        : null;
+    const token = existingToken || generatePublicToken();
+    const pdfPath = `invoices/${orgId}/${invoiceId}.pdf`;
+
+    const settings = await getSettingsData(orgId);
+    const companyName = settings.companyName || settings.legalName || "Invoice";
+
+    const pdfBuffer = await generateInvoicePdf({
+      invoice,
+      companyName
+    });
+
+    const storage = ensureStorage();
+    await storage.bucket().file(pdfPath).save(pdfBuffer, {
+      contentType: "application/pdf",
+      resumable: false,
+      metadata: {
+        cacheControl: "private, max-age=0"
+      }
+    });
+
+    const normalizedTo = normalizeEmails(toEmails);
+    if (normalizedTo.length === 0 && invoice.clientSnapshot?.email) {
+      normalizedTo.push(invoice.clientSnapshot.email);
+    }
+    if (normalizedTo.length === 0) {
+      throwHttpsError("invalid-argument", "Recipient email is required.");
+    }
+    const normalizedCc = normalizeEmails(ccEmails);
+
+    const publicUrl = `${resolvePublicBaseUrl()}/p/invoice/${token}`;
+
+    const resendKey = resendApiKey.value();
+    if (!resendKey) {
+      throwHttpsError("failed-precondition", "RESEND_API_KEY is not configured.");
+    }
+    const resend = new Resend(resendKey);
+    const fromAddress = resendFrom.value();
+    const invoiceLabel = invoice.invoiceNumber || invoice.id;
+    const subject = `Invoice ${invoiceLabel}`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <p>Hi ${invoice.clientSnapshot?.name || "there"},</p>
+        <p>Your invoice ${invoiceLabel} is ready.</p>
+        <p><a href="${publicUrl}" target="_blank" rel="noreferrer">View invoice</a></p>
+        <p>Thanks,<br/>${companyName}</p>
+      </div>
+    `;
+
+    await resend.emails.send({
+      from: fromAddress,
+      to: normalizedTo,
+      cc: normalizedCc.length ? normalizedCc : undefined,
+      subject,
+      html,
+      attachments: [
+        {
+          filename: `${invoiceLabel}.pdf`,
+          content: pdfBuffer.toString("base64")
+        }
+      ]
+    });
+
+    const publicPatch: Record<string, unknown> = {
+      token,
+      enabled: true,
+      revokedAt: null
+    };
+    if (!existingToken || invoice.public?.revokedAt) {
+      publicPatch.createdAt = FieldValue.serverTimestamp();
+    }
+
+    await invoiceRef.set(
+      {
+        status: "sent",
+        sentAt: FieldValue.serverTimestamp(),
+        pdfPath,
+        public: publicPatch,
+        updatedAt: FieldValue.serverTimestamp()
+      },
+      { merge: true }
+    );
+
+    await writeAuditLog({
+      orgId,
+      uid,
+      action: "invoice.sent",
+      entityType: "invoice",
+      entityId: invoiceId,
+      metadata: {
+        invoiceNumber: invoice.invoiceNumber,
+        toEmails: normalizedTo,
+        ccEmails: normalizedCc,
+        pdfPath,
+        publicUrl
+      }
+    });
+
+    return { publicUrl };
+  }
+);

@@ -63,7 +63,7 @@ const getAndIncrementNumber = async ({
   }
 
   const firestore = ensureFirestore(db);
-  const settingsRef = firestore.doc(`orgs/${orgId}/settings`);
+  const settingsRef = firestore.doc(`orgs/${orgId}/settings/main`);
 
   return firestore.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(settingsRef);

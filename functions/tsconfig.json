@@ -4,8 +4,10 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "rootDir": "src",
     "strict": true,
     "skipLibCheck": true,
+    "outDir": "lib",
     "forceConsistentCasingInFileNames": true,
     "types": ["node", "jest"]
   },

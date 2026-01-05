@@ -112,9 +112,13 @@ export default function AdminProjects() {
     if (!trimmedName) {
       return;
     }
+    if (!orgId) {
+      console.error("Cannot create project without org membership.");
+      return;
+    }
 
     try {
-      const projectRef = await addDoc(collection(db, "projects"), {
+      const projectRef = await addDoc(collection(db, "orgs", orgId, "projects"), {
         name: trimmedName,
         service: projectForm.service,
         stage: projectForm.stage,
@@ -126,7 +130,7 @@ export default function AdminProjects() {
       });
 
       if (projectForm.clientId) {
-        await addDoc(collection(db, "assignments"), {
+        await addDoc(collection(db, "orgs", orgId, "assignments"), {
           projectId: projectRef.id,
           clientId: projectForm.clientId,
           access: "Owner",
@@ -226,7 +230,7 @@ export default function AdminProjects() {
     }
 
     try {
-      await updateDoc(doc(db, "projects", editingProject.id), {
+      await updateDoc(doc(db, "orgs", orgId, "projects", editingProject.id), {
         name: trimmedName,
         service: editForm.service,
         stage: editForm.stage,

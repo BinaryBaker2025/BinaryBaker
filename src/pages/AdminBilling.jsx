@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { addDoc, collection, doc, serverTimestamp, Timestamp, updateDoc } from "firebase/firestore";
+import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
 import { useOutletContext } from "react-router-dom";
 import Dialog from "../components/Dialog.jsx";
-import { db } from "../firebase.js";
+import { db, functions } from "../firebase.js";
 import {
   buttonGhost,
   buttonPrimary,
@@ -128,12 +129,19 @@ const buildClientSnapshot = (client) => {
     Array.isArray(client.emails) && client.emails.length > 0
       ? client.emails[0]
       : client.email || "";
-  return {
-    name: client.name || client.companyName || "Client",
-    email: primaryEmail || undefined,
-    taxNumber: client.taxNumber || undefined,
-    billingAddress: client.billingAddress || undefined
+  const snapshot = {
+    name: client.name || client.companyName || "Client"
   };
+  if (primaryEmail) {
+    snapshot.email = primaryEmail;
+  }
+  if (client.taxNumber) {
+    snapshot.taxNumber = client.taxNumber;
+  }
+  if (client.billingAddress) {
+    snapshot.billingAddress = client.billingAddress;
+  }
+  return snapshot;
 };
 
 export default function AdminBilling() {
@@ -173,50 +181,25 @@ export default function AdminBilling() {
     try {
       const client = clientLookup[invoiceForm.clientId];
       const unitPriceMinor = parseAmountToMinor(trimmedAmount);
-      const baseMinor = unitPriceMinor;
       const lineItem = {
         itemId: null,
         name: invoiceForm.title.trim() || "Line item",
         description: "",
         quantity: 1,
         unitPriceMinor,
-        taxId: null,
-        computed: {
-          baseMinor,
-          discountMinor: 0,
-          netMinor: baseMinor,
-          taxMinor: 0,
-          totalMinor: baseMinor
-        }
+        taxId: null
       };
-      const totals = {
-        subtotalMinor: baseMinor,
-        discountTotalMinor: 0,
-        taxTotalMinor: 0,
-        totalMinor: baseMinor
-      };
-      const dueDateValue = invoiceForm.dueDate ? new Date(invoiceForm.dueDate) : null;
-      const dueDate =
-        dueDateValue && !Number.isNaN(dueDateValue.getTime())
-          ? Timestamp.fromDate(dueDateValue)
-          : null;
-
-      await addDoc(collection(db, "orgs", orgId, "invoices"), {
-        invoiceNumber: "",
-        status: normalizeInvoiceStatus(invoiceForm.status),
+      const dueDate = invoiceForm.dueDate ? invoiceForm.dueDate : undefined;
+      const createInvoiceDraft = httpsCallable(functions, "billingCreateInvoiceDraft");
+      await createInvoiceDraft({
+        orgId,
         clientId: invoiceForm.clientId,
-        clientSnapshot: buildClientSnapshot(client),
-        currency: client?.currencyOverride || defaultCurrency,
-        issueDate: Timestamp.now(),
-        dueDate,
-        lineItems: [lineItem],
-        totals,
-        amountPaidMinor: 0,
-        balanceDueMinor: totals.totalMinor,
-        notes: invoiceForm.note.trim(),
         projectId: invoiceForm.projectId,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        issueDate: new Date().toISOString(),
+        dueDate,
+        currency: client?.currencyOverride || defaultCurrency,
+        lineItems: [lineItem],
+        notes: invoiceForm.note.trim()
       });
       setInvoiceForm(defaultInvoiceForm);
     } catch (error) {

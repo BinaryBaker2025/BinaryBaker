@@ -68,6 +68,7 @@ export type Invoice = {
   invoiceNumber: string;
   status: InvoiceStatus;
   clientId: string;
+  clientName?: string;
   clientSnapshot: ClientSnapshot;
   currency: string;
   issueDate: Timestamp;

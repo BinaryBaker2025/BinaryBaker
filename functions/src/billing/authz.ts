@@ -1,9 +1,9 @@
 import { getApps, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
-import { HttpsError } from "firebase-functions/v2/https";
+import { FunctionsErrorCode, HttpsError } from "firebase-functions/v2/https";
 import type { BillingRole, OrgMembership } from "./types";
 
-type ErrorCode = Parameters<typeof HttpsError>[0];
+type ErrorCode = FunctionsErrorCode;
 
 const ensureFirestore = () => {
   if (!getApps().length) {
@@ -26,15 +26,20 @@ const normalizeRole = (value: unknown): BillingRole | null => {
   return null;
 };
 
-export const throwHttpsError = (code: ErrorCode, message: string, details?: unknown) => {
+export const throwHttpsError = (
+  code: ErrorCode,
+  message: string,
+  details?: unknown
+): never => {
   throw new HttpsError(code, message, details);
 };
 
-export const assertAuth = (auth: { uid?: string } | null): string => {
-  if (!auth?.uid) {
+export const assertAuth = (auth: { uid?: string } | null | undefined): string => {
+  const uid = auth?.uid;
+  if (!uid) {
     throwHttpsError("unauthenticated", "Authentication required.");
   }
-  return auth.uid;
+  return uid as string;
 };
 
 export const assertMember = async (orgId: string, uid: string): Promise<OrgMembership> => {

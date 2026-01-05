@@ -30,7 +30,7 @@ const defaultAssignmentEditForm = {
 };
 
 export default function AdminAccess() {
-  const { assignments, projects, clients } = useOutletContext();
+  const { assignments, projects, clients, orgId } = useOutletContext();
   const [assignmentForm, setAssignmentForm] = useState(defaultAssignmentForm);
   const [editingAssignment, setEditingAssignment] = useState(null);
   const [editForm, setEditForm] = useState(defaultAssignmentEditForm);
@@ -59,6 +59,10 @@ export default function AdminAccess() {
     if (!assignmentForm.projectId || !assignmentForm.clientId) {
       return;
     }
+    if (!orgId) {
+      console.error("Cannot create assignment without org membership.");
+      return;
+    }
 
     const alreadyAssigned = assignments.some(
       (assignment) =>
@@ -70,7 +74,7 @@ export default function AdminAccess() {
     }
 
     try {
-      await addDoc(collection(db, "assignments"), {
+      await addDoc(collection(db, "orgs", orgId, "assignments"), {
         projectId: assignmentForm.projectId,
         clientId: assignmentForm.clientId,
         access: assignmentForm.access,
@@ -112,6 +116,10 @@ export default function AdminAccess() {
     if (!editForm.projectId || !editForm.clientId) {
       return;
     }
+    if (!orgId) {
+      console.error("Cannot update assignment without org membership.");
+      return;
+    }
 
     const alreadyAssigned = assignments.some(
       (assignment) =>
@@ -124,7 +132,7 @@ export default function AdminAccess() {
     }
 
     try {
-      await updateDoc(doc(db, "assignments", editingAssignment.id), {
+      await updateDoc(doc(db, "orgs", orgId, "assignments", editingAssignment.id), {
         projectId: editForm.projectId,
         clientId: editForm.clientId,
         access: editForm.access,

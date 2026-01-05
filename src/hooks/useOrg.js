@@ -1,7 +1,8 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { collectionGroup, getDocs, limit, query, where } from "firebase/firestore";
+import { collectionGroup, doc, getDoc, getDocs, limit, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebase.js";
+import { getOrgId } from "../utils/org.js";
 
 export const useOrg = () => {
   const [state, setState] = useState({
@@ -28,6 +29,23 @@ export const useOrg = () => {
       setState((prev) => ({ ...prev, userId: user.uid, loading: true, error: null }));
 
       try {
+        const fallbackOrgId = getOrgId();
+        if (fallbackOrgId) {
+          const memberRef = doc(db, "orgs", fallbackOrgId, "members", user.uid);
+          const memberSnap = await getDoc(memberRef);
+          if (memberSnap.exists()) {
+            const data = memberSnap.data();
+            setState({
+              userId: user.uid,
+              orgId: fallbackOrgId,
+              role: data.role || null,
+              loading: false,
+              error: null
+            });
+            return;
+          }
+        }
+
         const membershipQuery = query(
           collectionGroup(db, "members"),
           where("uid", "==", user.uid),

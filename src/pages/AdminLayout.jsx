@@ -29,6 +29,18 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const { orgId, role, loading: orgLoading, error: orgError } = useOrg();
 
+  useEffect(() => {
+    if (orgLoading) {
+      return;
+    }
+    console.info("[Org] context", {
+      orgId,
+      role,
+      uid: auth.currentUser?.uid || null,
+      error: orgError || null
+    });
+  }, [orgId, role, orgLoading, orgError]);
+
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -39,25 +51,62 @@ export default function AdminLayout() {
   };
 
   useEffect(() => {
-    const subscribe = (collectionRef, setter) => {
-      const dataQuery = query(collectionRef, orderBy("createdAt", "desc"));
-      return onSnapshot(dataQuery, (snapshot) => {
-        setter(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      });
+    const subscribe = (collectionRef, setter, label, constraints = []) => {
+      const dataQuery = query(collectionRef, ...constraints, orderBy("createdAt", "desc"));
+      return onSnapshot(
+        dataQuery,
+        (snapshot) => {
+          setter(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        },
+        (error) => {
+          console.error(`[Firestore] ${label} listener error`, {
+            path: collectionRef.path,
+            orgId,
+            role,
+            uid: auth.currentUser?.uid || null,
+            message: error?.message || String(error)
+          });
+        }
+      );
     };
 
-    const unsubscribeProjects = subscribe(collection(db, "projects"), setProjects);
-    const unsubscribeAssignments = subscribe(collection(db, "assignments"), setAssignments);
-    const unsubscribeTasks = subscribe(collection(db, "tasks"), setTasks);
-
     const noop = () => {};
+    let unsubscribeProjects = noop;
+    let unsubscribeAssignments = noop;
+    let unsubscribeTasks = noop;
     let unsubscribeClients = noop;
     let unsubscribeInvoices = noop;
 
     if (orgId) {
-      unsubscribeClients = subscribe(collection(db, "orgs", orgId, "clients"), setClients);
-      unsubscribeInvoices = subscribe(collection(db, "orgs", orgId, "invoices"), setInvoices);
+      unsubscribeProjects = subscribe(
+        collection(db, "orgs", orgId, "projects"),
+        setProjects,
+        "projects"
+      );
+      unsubscribeAssignments = subscribe(
+        collection(db, "orgs", orgId, "assignments"),
+        setAssignments,
+        "assignments"
+      );
+      unsubscribeTasks = subscribe(
+        collection(db, "orgs", orgId, "tasks"),
+        setTasks,
+        "tasks"
+      );
+      unsubscribeClients = subscribe(
+        collection(db, "orgs", orgId, "clients"),
+        setClients,
+        "clients"
+      );
+      unsubscribeInvoices = subscribe(
+        collection(db, "orgs", orgId, "invoices"),
+        setInvoices,
+        "invoices"
+      );
     } else {
+      setProjects([]);
+      setAssignments([]);
+      setTasks([]);
       setClients([]);
       setInvoices([]);
     }
