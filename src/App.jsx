@@ -1,11 +1,10 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import UnderConstruction from "./pages/UnderConstruction.jsx";
+import { BrowserRouter, Routes } from "react-router-dom";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="*" element={<UnderConstruction />} />
+        {/* Routes will be defined inside individual pages */}
       </Routes>
     </BrowserRouter>
   );
