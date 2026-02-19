@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /portal
+Disallow: /customer
+Disallow: /client
+Disallow: /p/invoice/
+
+Sitemap: https://www.binarybaker.co.za/sitemap.xml

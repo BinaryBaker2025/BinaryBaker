@@ -2,6 +2,7 @@ import { httpsCallable } from "firebase/functions";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { functions } from "../../../firebase.js";
+import { cardBase, pageHeader, pageShell } from "../../../styles/uiTokens.js";
 
 type PublicInvoice = {
   id: string;
@@ -98,20 +99,20 @@ export default function PublicInvoicePage() {
 
   const formatDate = (millis: number | null) => {
     if (!millis) {
-      return "—";
+      return "N/A";
     }
     return new Date(millis).toLocaleDateString("en-ZA");
   };
 
   return (
-    <section className="mx-auto max-w-3xl px-6 py-10">
-      <header>
+    <section className={`${pageShell} max-w-3xl`}>
+      <header className={pageHeader}>
         <p className="text-xs uppercase tracking-[0.3em] text-ink/50">Invoice</p>
         <h1 className="mt-2 text-3xl font-semibold">
           Invoice {invoice?.invoiceNumber || ""}
         </h1>
       </header>
-      <div className="mt-6 rounded-[16px] border border-ink/10 bg-cream/80 p-6">
+      <div className={`${cardBase} mt-6`}>
         {loading && <p className="text-sm text-ink/70">Loading invoice...</p>}
         {!loading && error && <p className="text-sm text-rose-600">{error}</p>}
         {!loading && !error && invoice && (
@@ -143,7 +144,7 @@ export default function PublicInvoicePage() {
                       <p className="text-xs text-ink/60">{item.description}</p>
                     )}
                     <p className="text-xs text-ink/50">
-                      Qty {item.quantity} · {formatCurrency(item.unitPriceMinor, invoice.currency)}
+                      Qty {item.quantity} - {formatCurrency(item.unitPriceMinor, invoice.currency)}
                     </p>
                   </div>
                   <div className="text-right text-sm font-semibold text-ink">

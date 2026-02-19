@@ -9,30 +9,37 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase.js";
+import {
+  brandLink,
+  buttonGhost,
+  buttonPrimary,
+  cardBase,
+  inputBase,
+  labelBase,
+  pageHeader,
+  pageShell,
+  rowCard
+} from "../styles/uiTokens.js";
+import BrandLogo from "../components/BrandLogo.jsx";
 
 const portalHighlights = [
   {
-    title: "Live project status",
-    description: "Monitor milestones, approvals, and launch dates in real time."
+    title: "Project and quote status",
+    description: "Track scoping, milestones, and delivery phases in one place."
   },
   {
-    title: "Asset delivery",
-    description: "Grab design files, specs, and handoff notes when they are ready."
+    title: "Hosting and maintenance",
+    description: "Review active hosting tier, maintenance plan, and support coverage."
   },
   {
-    title: "Team collaboration",
-    description: "Add teammates, collect feedback, and keep everyone aligned."
+    title: "Documents and deliverables",
+    description: "Access files, approvals, and handoff notes without back-and-forth."
   },
   {
     title: "Billing snapshots",
-    description: "Review invoices, retainers, and billing timelines in one view."
+    description: "Review invoices, payment milestones, and billing timelines in one view."
   }
 ];
-
-const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition duration-200 hover:-translate-y-1 hover:shadow-bb";
-const buttonPrimary = `${buttonBase} bg-gradient-to-br from-deep-blue to-violet text-cream`;
-const buttonGhost = `${buttonBase} border border-ink/20 bg-cream/70`;
 
 const defaultRole = "customer";
 const allowedRoles = ["admin", "client", "customer"];
@@ -237,17 +244,14 @@ export default function Portal() {
   };
 
   return (
-    <div className="min-h-screen max-w-6xl mx-auto px-6 pb-12 pt-6">
-      <header className="flex flex-wrap items-center justify-between gap-6 py-4">
-        <Link className="flex items-center gap-3 font-serif text-lg font-bold" to="/">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] bg-gradient-to-br from-deep-blue to-violet font-mono text-sm uppercase tracking-[0.12em] text-cream">
-            BB
-          </span>
-          Binary Baker
+    <div className={pageShell}>
+      <header className={pageHeader}>
+        <Link className={brandLink} to="/">
+          <BrandLogo />
         </Link>
         <div className="flex flex-wrap gap-3">
           <a className={buttonPrimary} href="/#contact">
-            Request access
+            Request a quote
           </a>
           <Link className={buttonGhost} to="/">
             Back to site
@@ -262,17 +266,17 @@ export default function Portal() {
               Client Portal
             </p>
             <h1 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
-              Track every milestone from kickoff to launch.
+              Manage projects, hosting, and support in one secure workspace.
             </h1>
             <p className="mt-5 max-w-xl text-lg text-ink/80">
-              Your project workspace keeps deliverables, approvals, and timelines in one organized hub.
-              Login or register to stay synced with the Binary Baker team.
+              Your portal keeps delivery progress, billing, and support context aligned to your selected
+              plan. Sign in to stay synced with the Binary Baker team.
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               {portalHighlights.map((item) => (
                 <div
                   key={item.title}
-                  className="rounded-[18px] border border-ink/10 bg-cream/90 p-4 shadow-soft"
+                  className={rowCard}
                 >
                   <h3 className="text-sm font-semibold">{item.title}</h3>
                   <p className="mt-2 text-xs text-ink/60">{item.description}</p>
@@ -281,7 +285,7 @@ export default function Portal() {
             </div>
           </div>
 
-          <div className="rounded-[24px] border border-ink/10 bg-cream/95 p-6 shadow-soft">
+          <div className={`${cardBase} bg-cream/95`}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="inline-flex rounded-full bg-ink/5 p-1 text-xs font-semibold uppercase tracking-[0.2em]">
                 <button
@@ -316,13 +320,13 @@ export default function Portal() {
 
             <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
               {isRegister && (
-                <label className="grid gap-2 text-sm">
+                <label className={labelBase}>
                   Full name
                   <input
-                    className="w-full rounded-[12px] border border-ink/15 bg-white px-3 py-2 text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-blue/60"
+                    className={inputBase}
                     type="text"
                     name="name"
-                    placeholder="Avery Baker"
+                    placeholder="Thando Mokoena"
                     autoComplete="name"
                     value={formValues.name}
                     onChange={handleChange}
@@ -330,23 +334,23 @@ export default function Portal() {
                   />
                 </label>
               )}
-              <label className="grid gap-2 text-sm">
+              <label className={labelBase}>
                 Email
                 <input
-                  className="w-full rounded-[12px] border border-ink/15 bg-white px-3 py-2 text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-blue/60"
+                  className={inputBase}
                   type="email"
                   name="email"
-                  placeholder="you@company.com"
+                  placeholder="thando@company.co.za"
                   autoComplete="email"
                   value={formValues.email}
                   onChange={handleChange}
                   required
                 />
               </label>
-              <label className="grid gap-2 text-sm">
+              <label className={labelBase}>
                 Password
                 <input
-                  className="w-full rounded-[12px] border border-ink/15 bg-white px-3 py-2 text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-blue/60"
+                  className={inputBase}
                   type="password"
                   name="password"
                   placeholder="Enter your password"
@@ -357,10 +361,10 @@ export default function Portal() {
                 />
               </label>
               {isRegister && (
-                <label className="grid gap-2 text-sm">
+                <label className={labelBase}>
                   Confirm password
                   <input
-                    className="w-full rounded-[12px] border border-ink/15 bg-white px-3 py-2 text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-blue/60"
+                    className={inputBase}
                     type="password"
                     name="confirmPassword"
                     placeholder="Re-enter your password"
@@ -399,12 +403,12 @@ export default function Portal() {
               )}
             </form>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-ink/60">
-              <span>Secure access for active projects.</span>
+              <span>Secure access for active projects and support history.</span>
               <a
                 className="text-ink underline decoration-ink/30 underline-offset-4"
-                href="mailto:hello@binarybaker.com"
+                href="mailto:bradley@binarybaker.co.za"
               >
-                Need help?
+                Need access help?
               </a>
             </div>
           </div>

@@ -251,7 +251,7 @@ export default function AdminProjects() {
       <section>
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-violet">Projects</p>
         <h1 className="mt-3 font-serif text-3xl sm:text-4xl">
-          Create, assign, and track every active bake.
+          Create, assign, and track every active project.
         </h1>
         <p className="mt-3 text-ink/70">
           Build new engagements, set timelines, and link clients so they can access their project hubs.
@@ -414,7 +414,7 @@ export default function AdminProjects() {
                   name="budget"
                   value={projectForm.budget}
                   onChange={handleProjectChange}
-                  placeholder="$12,000"
+                  placeholder="R 12 000"
                 />
               </label>
               <label className={labelBase}>

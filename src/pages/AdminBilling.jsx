@@ -461,7 +461,7 @@ export default function AdminBilling() {
                   name="amount"
                   value={invoiceForm.amount}
                   onChange={handleInvoiceChange}
-                  placeholder="$4,500"
+                  placeholder="R 4 500"
                   required
                   disabled={!canCreateInvoice}
                 />
@@ -585,7 +585,7 @@ export default function AdminBilling() {
                 name="amount"
                 value={editForm.amount}
                 onChange={handleEditChange}
-                placeholder="$4,500"
+                placeholder="R 4 500"
                 required
                 disabled={!canCreateInvoice}
               />

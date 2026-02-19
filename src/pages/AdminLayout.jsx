@@ -3,7 +3,8 @@ import { signOut } from "firebase/auth";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase.js";
-import { buttonGhost } from "./adminData";
+import BrandLogo from "../components/BrandLogo.jsx";
+import { brandLink, buttonGhost, pageHeader, pageShell } from "./adminData";
 import { useOrg } from "../hooks/useOrg.js";
 
 const navItems = [
@@ -11,6 +12,7 @@ const navItems = [
   { label: "Projects", to: "/admin/projects" },
   { label: "Clients", to: "/admin/clients" },
   { label: "Access", to: "/admin/access" },
+  { label: "Leads", to: "/admin/leads" },
   { label: "Billing", to: "/admin/billing" },
   { label: "Project management", to: "/admin/management" }
 ];
@@ -26,6 +28,7 @@ export default function AdminLayout() {
   const [assignments, setAssignments] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [inquiries, setInquiries] = useState([]);
   const navigate = useNavigate();
   const { orgId, role, loading: orgLoading, error: orgError } = useOrg();
 
@@ -76,6 +79,7 @@ export default function AdminLayout() {
     let unsubscribeTasks = noop;
     let unsubscribeClients = noop;
     let unsubscribeInvoices = noop;
+    let unsubscribeInquiries = noop;
 
     if (orgId) {
       unsubscribeProjects = subscribe(
@@ -103,12 +107,18 @@ export default function AdminLayout() {
         setInvoices,
         "invoices"
       );
+      unsubscribeInquiries = subscribe(
+        collection(db, "orgs", orgId, "inquiries"),
+        setInquiries,
+        "inquiries"
+      );
     } else {
       setProjects([]);
       setAssignments([]);
       setTasks([]);
       setClients([]);
       setInvoices([]);
+      setInquiries([]);
     }
 
     return () => {
@@ -117,17 +127,15 @@ export default function AdminLayout() {
       unsubscribeTasks();
       unsubscribeClients();
       unsubscribeInvoices();
+      unsubscribeInquiries();
     };
   }, [orgId]);
 
   return (
-    <div className="min-h-screen max-w-6xl mx-auto px-6 pb-12 pt-6">
-      <header className="flex flex-wrap items-center justify-between gap-6 py-4">
-        <Link className="flex items-center gap-3 font-serif text-lg font-bold" to="/">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] bg-gradient-to-br from-deep-blue to-violet font-mono text-sm uppercase tracking-[0.12em] text-cream">
-            BB
-          </span>
-          Binary Baker
+    <div className={pageShell}>
+      <header className={pageHeader}>
+        <Link className={brandLink} to="/">
+          <BrandLogo />
         </Link>
         <div className="flex flex-wrap gap-3">
           <button className={buttonGhost} type="button" onClick={handleSignOut}>
@@ -156,7 +164,7 @@ export default function AdminLayout() {
         </div>
       )}
 
-      <main className="py-10">
+      <main className="py-12">
         <Outlet
           context={{
             orgId,
@@ -167,7 +175,8 @@ export default function AdminLayout() {
             clients,
             assignments,
             invoices,
-            tasks
+            tasks,
+            inquiries
           }}
         />
       </main>

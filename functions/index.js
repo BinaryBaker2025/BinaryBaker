@@ -4,6 +4,7 @@ const { defineSecret, defineString } = require("firebase-functions/params");
 const { initializeApp } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
 const { FieldValue, getFirestore, Timestamp } = require("firebase-admin/firestore");
+const { createHash } = require("crypto");
 const { Resend } = require("resend");
 
 initializeApp();
@@ -13,14 +14,72 @@ const db = getFirestore();
 
 const resendApiKey = defineSecret("RESEND_API_KEY");
 const resendFrom = defineString("RESEND_FROM", {
-  default: "Binary Baker <hello@binarybaker.com>"
+  default: "Binary Baker <bradley@binarybaker.co.za>"
 });
 const portalUrl = defineString("CLIENT_PORTAL_URL", {
   default: "https://yourdomain.com/portal"
 });
+const contactInquiryOrgId = defineString("CONTACT_INQUIRY_ORG_ID", {
+  default: "default"
+});
+const contactInboxEmail = defineString("CONTACT_INBOX_EMAIL", {
+  default: "bradley@binarybaker.co.za"
+});
+const contactWhatsappNumber = defineString("CONTACT_WHATSAPP_NUMBER", {
+  default: "+27611011669"
+});
 
 const DEFAULT_CURRENCY = "ZAR";
 const ALLOWED_CREATE_ROLES = ["owner", "admin", "finance", "sales"];
+const ALLOWED_INQUIRY_TYPES = ["system_quote", "general_enquiry", "support"];
+const ALLOWED_CONTACT_METHODS = ["email", "whatsapp", "either", "phone"];
+const ALLOWED_SYSTEM_TYPES = [
+  "crm",
+  "erp",
+  "ecommerce",
+  "booking",
+  "internal_tool",
+  "mobile_app",
+  "website_platform",
+  "automation",
+  "other"
+];
+const ALLOWED_BUDGET_RANGES = [
+  "under_5k",
+  "5k_15k",
+  "15k_50k",
+  "50k_100k",
+  "100k_plus",
+  "not_sure"
+];
+const ALLOWED_TIMELINES = ["asap", "1_2_months", "3_6_months", "6_plus_months", "not_sure"];
+const LEAD_STATUSES = ["new", "in_review", "replied", "closed"];
+const BUDGET_RANGE_LABELS = {
+  under_5k: "Lite - Showcase",
+  "5k_15k": "Starter - Business",
+  "15k_50k": "Business - Growth",
+  "50k_100k": "Advanced - Authority",
+  "100k_plus": "E-Commerce or Custom Web App",
+  not_sure: "Not sure yet"
+};
+const TIMELINE_LABELS = {
+  asap: "ASAP",
+  "1_2_months": "1-2 months",
+  "3_6_months": "3-6 months",
+  "6_plus_months": "6+ months",
+  not_sure: "Not sure yet"
+};
+const INQUIRY_TYPE_LABELS = {
+  system_quote: "System quote",
+  general_enquiry: "General enquiry",
+  support: "Support"
+};
+const CONTACT_METHOD_LABELS = {
+  email: "Email",
+  whatsapp: "WhatsApp",
+  either: "Email or WhatsApp",
+  phone: "Phone"
+};
 
 const roundMoney = (value) => Math.round(value);
 
@@ -288,6 +347,313 @@ const buildInviteEmail = ({ name, resetLink }) => {
   };
 };
 
+const toCleanString = (value, maxLength = 4000) => {
+  if (typeof value !== "string") {
+    return "";
+  }
+  return value.trim().slice(0, maxLength);
+};
+
+const toOptionalString = (value, maxLength = 4000) => {
+  const cleaned = toCleanString(value, maxLength);
+  return cleaned || undefined;
+};
+
+const normalizeEnumValue = (value, allowed) => {
+  const cleaned = toCleanString(value, 120);
+  if (!cleaned) {
+    return "";
+  }
+  return allowed.includes(cleaned) ? cleaned : "";
+};
+
+const isValidEmail = (value) => {
+  if (!value) {
+    return false;
+  }
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+};
+
+const resolveRequestIp = (rawRequest) => {
+  const forwardedFor = rawRequest?.headers?.["x-forwarded-for"];
+  if (typeof forwardedFor === "string" && forwardedFor.trim()) {
+    return forwardedFor.split(",")[0].trim();
+  }
+  if (Array.isArray(forwardedFor) && forwardedFor.length > 0) {
+    return String(forwardedFor[0]).trim();
+  }
+  if (rawRequest?.ip) {
+    return String(rawRequest.ip).trim();
+  }
+  return "unknown";
+};
+
+const hashIp = (ip) => createHash("sha256").update(String(ip)).digest("hex");
+
+const escapeHtml = (value) =>
+  String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+const toEmailSafeText = (value, fallback = "N/A", maxLength = 4000) => {
+  const cleaned = toCleanString(value, maxLength);
+  return cleaned ? escapeHtml(cleaned) : fallback;
+};
+
+const toEmailSafeMultiline = (value, fallback = "N/A", maxLength = 4000) => {
+  const cleaned = toCleanString(value, maxLength);
+  return cleaned ? escapeHtml(cleaned).replace(/\n/g, "<br/>") : fallback;
+};
+
+const formatInquiryTypeLabel = (inquiryType) => {
+  const normalized = normalizeEnumValue(inquiryType, ALLOWED_INQUIRY_TYPES);
+  if (normalized) {
+    return INQUIRY_TYPE_LABELS[normalized] || normalized;
+  }
+  const fallback = toCleanString(inquiryType, 120).replace(/_/g, " ");
+  return fallback || "Enquiry";
+};
+
+const formatContactMethodLabel = (contactMethod) => {
+  const normalized = normalizeEnumValue(contactMethod, ALLOWED_CONTACT_METHODS);
+  if (normalized) {
+    return CONTACT_METHOD_LABELS[normalized] || normalized;
+  }
+  return toCleanString(contactMethod, 120) || "N/A";
+};
+
+const formatSubmittedAtLabel = (submittedAt) => {
+  if (submittedAt && typeof submittedAt.toDate === "function") {
+    return submittedAt.toDate().toISOString();
+  }
+  return toCleanString(submittedAt ? String(submittedAt) : "", 120) || "N/A";
+};
+
+const formatSystemTypeLabel = (lead) => {
+  if (lead.systemType === "other") {
+    return toCleanString(lead.systemTypeOther, 180) || "Other";
+  }
+  return toCleanString(lead.systemType, 120) || "N/A";
+};
+
+const buildInfoRows = (rows) =>
+  rows
+    .map(([label, value], index) => {
+      const borderStyle =
+        index === rows.length - 1 ? "border-bottom:none;" : "border-bottom:1px solid #e7ebf3;";
+      return `
+        <tr>
+          <td style="padding:12px 14px; width:38%; vertical-align:top; color:#4b5565; font-size:13px; font-weight:600; ${borderStyle}">
+            ${escapeHtml(label)}
+          </td>
+          <td style="padding:12px 14px; vertical-align:top; color:#111827; font-size:14px; line-height:1.55; ${borderStyle}">
+            ${value}
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+
+const buildInfoTable = (rows) => `
+  <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; border-collapse:separate; border-spacing:0; border:1px solid #e7ebf3; border-radius:12px; overflow:hidden; background:#ffffff;">
+    ${buildInfoRows(rows)}
+  </table>
+`;
+
+const buildInquiryAlertEmail = ({ lead, inquiryId }) => {
+  const inquiryTypeLabel = formatInquiryTypeLabel(lead.inquiryType);
+  const preferredPlanLabel = BUDGET_RANGE_LABELS[lead.budgetRange] || lead.budgetRange || "N/A";
+  const timelineLabel = TIMELINE_LABELS[lead.timeline] || lead.timeline || "N/A";
+  const sharedRows = [
+    ["Inquiry ID", toEmailSafeText(inquiryId, "N/A", 120)],
+    ["Type", toEmailSafeText(inquiryTypeLabel, "N/A", 120)],
+    ["Submitted at (UTC)", toEmailSafeText(formatSubmittedAtLabel(lead.submittedAt), "N/A", 120)],
+    ["Full name", toEmailSafeText(lead.fullName, "N/A", 120)],
+    ["Email", toEmailSafeText(lead.email, "N/A", 254)],
+    ["Phone / WhatsApp", toEmailSafeText(lead.phone, "N/A", 40)],
+    ["Preferred contact", toEmailSafeText(formatContactMethodLabel(lead.preferredContactMethod), "N/A", 120)],
+    ["Consent to contact", lead.consentToContact ? "Yes" : "No"]
+  ];
+
+  const typeSpecificRows =
+    lead.inquiryType === "system_quote"
+      ? [
+          ["Company", toEmailSafeText(lead.companyName, "N/A", 180)],
+          ["System type", toEmailSafeText(formatSystemTypeLabel(lead), "N/A", 180)],
+          ["Preferred plan", toEmailSafeText(preferredPlanLabel, "N/A", 120)],
+          ["Timeline", toEmailSafeText(timelineLabel, "N/A", 120)],
+          ["Requirements", toEmailSafeMultiline(lead.requirementsSummary, "N/A", 4000)]
+        ]
+      : [["Message", toEmailSafeMultiline(lead.message, "N/A", 4000)]];
+
+  return {
+    subject: `New website enquiry (${toCleanString(inquiryId, 120) || "no-id"}) - ${inquiryTypeLabel}`,
+    html: `
+      <div style="margin:0; padding:26px 12px; background:#f3f6fb; font-family:Arial,'Segoe UI',sans-serif;">
+        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; max-width:700px; margin:0 auto;">
+          <tr>
+            <td>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; border:1px solid #dbe3ef; border-radius:18px; overflow:hidden; background:#ffffff; box-shadow:0 8px 28px rgba(1,2,5,0.08);">
+                <tr>
+                  <td style="padding:24px 28px; background:linear-gradient(135deg,#1932BB 0%,#5336EF 100%); color:#ffffff;">
+                    <p style="margin:0 0 8px; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; opacity:0.82;">
+                      Binary Baker Lead Intake
+                    </p>
+                    <h1 style="margin:0; font-size:24px; line-height:1.25; font-weight:700;">
+                      New website enquiry received
+                    </h1>
+                    <p style="margin:10px 0 0; font-size:14px; line-height:1.45; opacity:0.92;">
+                      ${toEmailSafeText(inquiryTypeLabel, "Enquiry", 120)} enquiry submitted via the website.
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:24px 28px;">
+                    <p style="margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:0.14em; color:#4f46e5; font-weight:700;">
+                      Contact Details
+                    </p>
+                    ${buildInfoTable(sharedRows)}
+                    <p style="margin:20px 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:0.14em; color:#4f46e5; font-weight:700;">
+                      Enquiry Details
+                    </p>
+                    ${buildInfoTable(typeSpecificRows)}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:14px 28px 22px; border-top:1px solid #e7ebf3; color:#5f6b7c; font-size:12px; line-height:1.5;">
+                    Generated automatically from the Binary Baker contact form.
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `
+  };
+};
+
+const buildInquiryReceiptEmail = ({ lead, inquiryId, whatsappNumber }) => {
+  const inquiryTypeLabel = formatInquiryTypeLabel(lead.inquiryType);
+  const preferredPlanLabel = BUDGET_RANGE_LABELS[lead.budgetRange] || lead.budgetRange || "N/A";
+  const timelineLabel = TIMELINE_LABELS[lead.timeline] || lead.timeline || "N/A";
+  const whatsappDisplay = toCleanString(whatsappNumber, 40) || "+27611011669";
+  const whatsappLinkDigits = whatsappDisplay.replace(/\D/g, "");
+  const whatsappHref = whatsappLinkDigits ? `https://wa.me/${whatsappLinkDigits}` : "";
+
+  const summaryRows =
+    lead.inquiryType === "system_quote"
+      ? [
+          ["Enquiry type", toEmailSafeText(inquiryTypeLabel, "N/A", 120)],
+          ["Company", toEmailSafeText(lead.companyName, "N/A", 180)],
+          ["System type", toEmailSafeText(formatSystemTypeLabel(lead), "N/A", 180)],
+          ["Preferred plan", toEmailSafeText(preferredPlanLabel, "N/A", 120)],
+          ["Timeline", toEmailSafeText(timelineLabel, "N/A", 120)],
+          ["Requirements summary", toEmailSafeMultiline(lead.requirementsSummary, "N/A", 4000)]
+        ]
+      : [
+          ["Enquiry type", toEmailSafeText(inquiryTypeLabel, "N/A", 120)],
+          ["Message", toEmailSafeMultiline(lead.message, "N/A", 4000)]
+        ];
+
+  return {
+    subject: `We received your enquiry (${toCleanString(inquiryId, 120) || "pending"})`,
+    html: `
+      <div style="margin:0; padding:26px 12px; background:#f3f6fb; font-family:Arial,'Segoe UI',sans-serif;">
+        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; max-width:700px; margin:0 auto;">
+          <tr>
+            <td>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; border:1px solid #dbe3ef; border-radius:18px; overflow:hidden; background:#ffffff; box-shadow:0 8px 28px rgba(1,2,5,0.08);">
+                <tr>
+                  <td style="padding:24px 28px; background:linear-gradient(135deg,#1932BB 0%,#5336EF 100%); color:#ffffff;">
+                    <p style="margin:0 0 8px; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; opacity:0.82;">
+                      Binary Baker
+                    </p>
+                    <h1 style="margin:0; font-size:24px; line-height:1.25; font-weight:700;">
+                      We received your enquiry
+                    </h1>
+                    <p style="margin:10px 0 0; font-size:14px; line-height:1.45; opacity:0.92;">
+                      Thanks for your message. We will reply within 48 hours.
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:24px 28px;">
+                    <p style="margin:0 0 12px; color:#111827; font-size:15px; line-height:1.6;">
+                      Hi ${toEmailSafeText(lead.fullName, "there", 120)},
+                    </p>
+                    <p style="margin:0 0 12px; color:#374151; font-size:14px; line-height:1.65;">
+                      Your enquiry has been logged and assigned for review. We will contact you through your selected channel with next steps.
+                    </p>
+                    <div style="margin:0 0 14px; padding:12px 14px; border:1px solid #d8e1ef; border-radius:12px; background:#f8fbff;">
+                      <p style="margin:0; color:#1f2937; font-size:14px; line-height:1.6;">
+                        Need a faster reply? Contact us on WhatsApp:
+                        ${
+                          whatsappHref
+                            ? `<a href="${whatsappHref}" style="color:#1932BB; font-weight:700; text-decoration:underline;"> ${escapeHtml(whatsappDisplay)}</a>`
+                            : `<strong style="color:#1932BB;"> ${escapeHtml(whatsappDisplay)}</strong>`
+                        }
+                      </p>
+                    </div>
+                    <p style="margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:0.14em; color:#4f46e5; font-weight:700;">
+                      Enquiry Summary
+                    </p>
+                    ${buildInfoTable([
+                      ["Reference", toEmailSafeText(inquiryId, "N/A", 120)],
+                      [
+                        "Preferred contact",
+                        toEmailSafeText(formatContactMethodLabel(lead.preferredContactMethod), "N/A", 120)
+                      ],
+                      ...summaryRows
+                    ])}
+                    <p style="margin:16px 0 0; color:#4b5565; font-size:14px; line-height:1.6;">
+                      Regards,<br/><strong style="color:#111827;">Binary Baker</strong>
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:14px 28px 22px; border-top:1px solid #e7ebf3; color:#5f6b7c; font-size:12px; line-height:1.5;">
+                    This is an automated confirmation for your website enquiry.
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `
+  };
+};
+
+const resolveResendSendOutcome = (settledResult, fallbackError) => {
+  if (settledResult.status === "fulfilled") {
+    const value = settledResult.value || {};
+    if (value.error) {
+      return {
+        status: "failed",
+        error: toCleanString(String(value.error?.message || fallbackError), 500) || fallbackError,
+        emailId: ""
+      };
+    }
+    const emailId = toCleanString(value.data?.id || value.id, 200);
+    return {
+      status: "sent",
+      error: "",
+      emailId
+    };
+  }
+
+  return {
+    status: "failed",
+    error:
+      toCleanString(String(settledResult.reason?.message || fallbackError), 500) || fallbackError,
+    emailId: ""
+  };
+};
+
 exports.inviteClientOnCreate = onDocumentCreated(
   { document: "orgs/{orgId}/clients/{clientId}", retry: false, secrets: [resendApiKey] },
   async (event) => {
@@ -392,6 +758,235 @@ exports.inviteClientOnCreate = onDocumentCreated(
     }
   }
 );
+
+exports.submitWebsiteInquiry = onCall({ secrets: [resendApiKey] }, async (request) => {
+  const payload = request.data || {};
+  const inquiryType = normalizeEnumValue(payload.inquiryType, ALLOWED_INQUIRY_TYPES);
+  const fullName = toCleanString(payload.fullName, 120);
+  const email = toCleanString(payload.email, 254).toLowerCase();
+  const phone = toCleanString(payload.phone, 40);
+  const preferredContactMethod = normalizeEnumValue(
+    payload.preferredContactMethod,
+    ALLOWED_CONTACT_METHODS
+  );
+  const consentToContact = payload.consentToContact === true;
+  const honeypot = toCleanString(payload.website, 120);
+
+  if (!inquiryType) {
+    throw new HttpsError("invalid-argument", "Invalid inquiry type.");
+  }
+  if (!fullName) {
+    throw new HttpsError("invalid-argument", "Full name is required.");
+  }
+  if (!isValidEmail(email)) {
+    throw new HttpsError("invalid-argument", "A valid email is required.");
+  }
+  if (!preferredContactMethod) {
+    throw new HttpsError("invalid-argument", "Preferred contact method is required.");
+  }
+  if (!consentToContact) {
+    throw new HttpsError("invalid-argument", "Consent is required.");
+  }
+  if (honeypot) {
+    throw new HttpsError("invalid-argument", "Invalid submission.");
+  }
+
+  const companyName = toCleanString(payload.companyName, 180);
+  const systemType = normalizeEnumValue(payload.systemType, ALLOWED_SYSTEM_TYPES);
+  const systemTypeOther = toCleanString(payload.systemTypeOther, 180);
+  const budgetRange = normalizeEnumValue(payload.budgetRange, ALLOWED_BUDGET_RANGES);
+  const timeline = normalizeEnumValue(payload.timeline, ALLOWED_TIMELINES);
+  const requirementsSummary = toCleanString(payload.requirementsSummary, 4000);
+  const message = toCleanString(payload.message, 4000);
+
+  if (inquiryType === "system_quote") {
+    if (!companyName) {
+      throw new HttpsError("invalid-argument", "Company name is required for system quotes.");
+    }
+    if (!phone) {
+      throw new HttpsError(
+        "invalid-argument",
+        "WhatsApp number is required for system quotes."
+      );
+    }
+    if (!systemType) {
+      throw new HttpsError("invalid-argument", "System type is required for system quotes.");
+    }
+    if (systemType === "other" && !systemTypeOther) {
+      throw new HttpsError("invalid-argument", "Please specify your system type.");
+    }
+    if (!budgetRange) {
+      throw new HttpsError("invalid-argument", "Budget range is required for system quotes.");
+    }
+    if (!timeline) {
+      throw new HttpsError("invalid-argument", "Timeline is required for system quotes.");
+    }
+    if (!requirementsSummary) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Requirements summary is required for system quotes."
+      );
+    }
+  } else if (!message) {
+    throw new HttpsError("invalid-argument", "Message is required for this enquiry type.");
+  }
+
+  const configuredOrgId = toCleanString(contactInquiryOrgId.value(), 120) || "default";
+  const orgId = toCleanString(payload.orgId, 120) || configuredOrgId;
+  if (!orgId) {
+    throw new HttpsError("failed-precondition", "No target org configured for inquiry intake.");
+  }
+
+  const requestIp = resolveRequestIp(request.rawRequest);
+  const ipHash = hashIp(requestIp);
+  const userAgent = toCleanString(request.rawRequest?.headers?.["user-agent"], 512);
+  const submittedAt = Timestamp.now();
+
+  const rateLimitRef = db.collection(`orgs/${orgId}/inquiryRateLimits/${ipHash}/hits`);
+  const rateWindowStart = Timestamp.fromMillis(submittedAt.toMillis() - 60 * 60 * 1000);
+  const recentHitsSnapshot = await rateLimitRef
+    .where("createdAt", ">=", rateWindowStart)
+    .limit(5)
+    .get();
+
+  if (recentHitsSnapshot.size >= 5) {
+    throw new HttpsError("resource-exhausted", "Too many requests. Try again later.");
+  }
+
+  const inquiryData = {
+    inquiryType,
+    status: LEAD_STATUSES[0],
+    fullName,
+    email,
+    phone: phone || "",
+    companyName: inquiryType === "system_quote" ? companyName : "",
+    preferredContactMethod,
+    consentToContact,
+    systemType: inquiryType === "system_quote" ? systemType : "",
+    systemTypeOther:
+      inquiryType === "system_quote" && systemType === "other" ? systemTypeOther : "",
+    budgetRange: inquiryType === "system_quote" ? budgetRange : "",
+    timeline: inquiryType === "system_quote" ? timeline : "",
+    requirementsSummary: inquiryType === "system_quote" ? requirementsSummary : "",
+    message: inquiryType === "system_quote" ? "" : message,
+    source: "website_contact_form",
+    alertStatus: "pending",
+    alertError: "",
+    alertEmailId: "",
+    receiptStatus: "pending",
+    receiptError: "",
+    receiptEmailId: "",
+    ipHash,
+    userAgent,
+    adminNotes: "",
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+    submittedAt
+  };
+
+  const inquiryRef = await db.collection(`orgs/${orgId}/inquiries`).add(inquiryData);
+  await rateLimitRef.add({
+    inquiryId: inquiryRef.id,
+    createdAt: submittedAt
+  });
+
+  const updateInquiryEmailStatuses = async (data) => {
+    try {
+      await inquiryRef.set(
+        {
+          ...data,
+          updatedAt: FieldValue.serverTimestamp()
+        },
+        { merge: true }
+      );
+    } catch (error) {
+      console.error("Failed to update inquiry email statuses", {
+        inquiryId: inquiryRef.id,
+        error: error?.message || "Unknown error"
+      });
+    }
+  };
+
+  const resendKey = resendApiKey.value();
+  if (!resendKey) {
+    await updateInquiryEmailStatuses({
+      alertStatus: "failed",
+      alertError: "RESEND_API_KEY is not configured.",
+      alertEmailId: "",
+      receiptStatus: "failed",
+      receiptError: "RESEND_API_KEY is not configured.",
+      receiptEmailId: ""
+    });
+    return { ok: true, inquiryId: inquiryRef.id };
+  }
+
+  const resend = new Resend(resendKey);
+  const fromAddress = resendFrom.value();
+  const inboxAddress =
+    toCleanString(contactInboxEmail.value(), 254) || "bradley@binarybaker.co.za";
+  const whatsappNumber =
+    toCleanString(contactWhatsappNumber.value(), 40) || "+27611011669";
+
+  try {
+    const alertEmail = buildInquiryAlertEmail({
+      lead: inquiryData,
+      inquiryId: inquiryRef.id
+    });
+    const receiptEmail = buildInquiryReceiptEmail({
+      lead: inquiryData,
+      inquiryId: inquiryRef.id,
+      whatsappNumber
+    });
+
+    const [alertSendResult, receiptSendResult] = await Promise.allSettled([
+      resend.emails.send({
+        from: fromAddress,
+        to: inboxAddress,
+        subject: alertEmail.subject,
+        html: alertEmail.html
+      }),
+      resend.emails.send({
+        from: fromAddress,
+        to: email,
+        subject: receiptEmail.subject,
+        html: receiptEmail.html
+      })
+    ]);
+
+    const alertOutcome = resolveResendSendOutcome(
+      alertSendResult,
+      "Failed to send inquiry alert email."
+    );
+    const receiptOutcome = resolveResendSendOutcome(
+      receiptSendResult,
+      "Failed to send inquiry receipt email."
+    );
+
+    await updateInquiryEmailStatuses({
+      alertStatus: alertOutcome.status,
+      alertError: alertOutcome.error,
+      alertEmailId: alertOutcome.emailId || "",
+      receiptStatus: receiptOutcome.status,
+      receiptError: receiptOutcome.error,
+      receiptEmailId: receiptOutcome.emailId || ""
+    });
+  } catch (error) {
+    await updateInquiryEmailStatuses({
+      alertStatus: "failed",
+      alertError:
+        toCleanString(String(error?.message || "Failed to send inquiry alert email."), 500) ||
+        "Failed to send inquiry alert email.",
+      alertEmailId: "",
+      receiptStatus: "failed",
+      receiptError:
+        toCleanString(String(error?.message || "Failed to send inquiry receipt email."), 500) ||
+        "Failed to send inquiry receipt email.",
+      receiptEmailId: ""
+    });
+  }
+
+  return { ok: true, inquiryId: inquiryRef.id };
+});
 
 exports.billingCreateInvoiceDraft = onCall(async (request) => {
   const uid = assertAuth(request);

@@ -41,7 +41,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <section className="grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.35em] text-deep-blue">Admin</p>
@@ -73,7 +73,7 @@ export default function AdminDashboard() {
               </p>
               <h2 className="mt-3 text-2xl font-semibold">Weekly command center</h2>
               <p className="mt-2 text-sm text-ink/70">
-                Clear blockers and keep approvals, billing, and access moving before the next sprint.
+                Clear blockers and keep approvals, billing, and access moving across active workstreams.
               </p>
             </div>
             <span className="rounded-full bg-ink/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-ink/60">

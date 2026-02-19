@@ -53,7 +53,7 @@ const DEFAULT_CURRENCY = "ZAR";
 const ALLOWED_CREATE_ROLES = ["owner", "admin", "finance", "sales"];
 const resendApiKey = defineSecret("RESEND_API_KEY");
 const resendFrom = defineString("RESEND_FROM", {
-  default: "Binary Baker <hello@binarybaker.com>"
+  default: "Binary Baker <bradley@binarybaker.co.za>"
 });
 const clientPortalUrl = defineString("CLIENT_PORTAL_URL", {
   default: "https://yourdomain.com"
