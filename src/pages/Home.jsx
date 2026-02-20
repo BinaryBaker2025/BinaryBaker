@@ -13,6 +13,7 @@ import BrandLogo from "../components/BrandLogo.jsx";
 
 const navLinks = [
   { href: "#services", label: "Services" },
+  { href: "#showcase", label: "Showcase" },
   { href: "#process", label: "Process" },
   { href: "#locations", label: "Locations" },
   { href: "#contact", label: "Contact" }
@@ -55,6 +56,25 @@ const services = [
     description:
       "Website maintenance, performance optimisation, and bug fixes after launch.",
     timeline: "Ongoing"
+  }
+];
+
+const showcaseProjects = [
+  {
+    id: "bethany-blooms",
+    name: "Bethany Blooms",
+    websiteUrl: "https://www.bethanyblooms.co.za/",
+    websiteLabel: "bethanyblooms.co.za",
+    logoUrl: "https://www.bethanyblooms.co.za/bradb-favicon.png",
+    summary: "Pressed flower art workshops, curated DIY kits, and custom floral keepsakes."
+  },
+  {
+    id: "the-crooked-fence",
+    name: "The Crooked Fence",
+    websiteUrl: "https://www.thecrookedfence.co.za/",
+    websiteLabel: "thecrookedfence.co.za",
+    logoUrl: "https://www.thecrookedfence.co.za/TCFLogoWhiteBackground.png",
+    summary: "Fertile egg ordering with structured delivery planning."
   }
 ];
 
@@ -766,6 +786,41 @@ export default function Home() {
                 <p className="mt-4 font-mono text-xs uppercase tracking-[0.25em] text-ink/70">
                   {service.timeline}
                 </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="reveal py-14 sm:py-16 lg:py-16" id="showcase">
+          <div className="max-w-2xl">
+            <p className={sectionEyebrowLightClass}>Client Showcase</p>
+            <h2 className={sectionHeadingClass}>A look at recent projects</h2>
+            <p className={sectionBodyClass}>
+              Examples of businesses we have helped launch online so far.
+            </p>
+          </div>
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            {showcaseProjects.map((project) => (
+              <article key={project.id} className={`${surfaceHoverClass} flex flex-col p-5 sm:p-6`}>
+                <div className="flex h-24 items-center justify-center rounded-[14px] border border-ink/10 bg-white/95 px-4">
+                  <img
+                    src={project.logoUrl}
+                    alt={`${project.name} logo`}
+                    className="max-h-16 w-auto object-contain"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <h3 className={`mt-4 ${sectionSubheadingClass}`}>{project.name}</h3>
+                <p className="mt-2 text-sm text-ink/70">{project.summary}</p>
+                <a
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-[12px] border border-blue/30 bg-blue/5 px-4 py-2.5 text-sm font-semibold text-deep-blue transition hover:border-blue/50 hover:bg-blue/10"
+                  href={project.websiteUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Visit {project.websiteLabel}
+                </a>
               </article>
             ))}
           </div>
@@ -1636,6 +1691,7 @@ export default function Home() {
         </div>
         <div className="grid gap-2">
           <a href="#services">Services</a>
+          <a href="#showcase">Showcase</a>
           <a href="#process">Process</a>
           <a href="#contact">Contact</a>
         </div>
