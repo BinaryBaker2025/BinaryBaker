@@ -14,6 +14,7 @@ import BrandLogo from "../components/BrandLogo.jsx";
 const navLinks = [
   { href: "#services", label: "Services" },
   { href: "#process", label: "Process" },
+  { href: "#locations", label: "Locations" },
   { href: "#contact", label: "Contact" }
 ];
 
@@ -31,7 +32,8 @@ const services = [
   {
     id: "01",
     title: "Website Design & Development",
-    description: "Custom business websites built for speed, clarity, and lead conversion.",
+    description:
+      "Web design and website development for South African businesses focused on speed, clarity, and lead conversion.",
     timeline: "Custom scope"
   },
   {
@@ -43,13 +45,15 @@ const services = [
   {
     id: "03",
     title: "E-Commerce & Integrations",
-    description: "Online stores and integrations with payments, forms, and third-party services.",
+    description:
+      "E-commerce website development with payments, forms, and third-party integrations.",
     timeline: "Scalable build"
   },
   {
     id: "04",
     title: "Support & Optimisation",
-    description: "Ongoing improvements, bug fixes, and performance updates after launch.",
+    description:
+      "Website maintenance, performance optimisation, and bug fixes after launch.",
     timeline: "Ongoing"
   }
 ];
@@ -92,6 +96,7 @@ const processSteps = [
 
 const whyBinaryBakerPoints = [
   "We build systems, not just websites.",
+  "We understand local requirements for South African businesses.",
   "Every project is scoped, documented, and delivered professionally.",
   "Infrastructure, security, and scalability are built in from day one.",
   "No rushed builds, no hidden costs, and no guesswork.",
@@ -269,14 +274,19 @@ const qualityAssuranceFramework = [
 
 const faqItems = [
   {
-    question: "Do you offer fixed pricing?",
+    question: "Do you offer web design and website development in South Africa?",
     answer:
-      "We scope each project before quoting to ensure pricing reflects actual requirements. After discovery, we provide a structured proposal outlining deliverables, assumptions, and cost breakdown. Fixed pricing is available when scope and integrations are clearly defined."
+      "Yes. Binary Baker provides web design and website development for businesses across South Africa, including Johannesburg, Cape Town, Durban, Pretoria, and remote teams."
   },
   {
-    question: "Can I host elsewhere?",
+    question: "Do you include hosting and website maintenance?",
     answer:
-      "Yes. While we offer managed infrastructure, systems can be deployed to third-party environments when required. However, we recommend managed hosting to maintain performance consistency, security controls, and monitoring oversight."
+      "Yes. We provide managed hosting options and structured website maintenance plans that include updates, performance monitoring, and issue handling."
+  },
+  {
+    question: "Can you build e-commerce websites?",
+    answer:
+      "Yes. We build e-commerce websites with payment integrations, product management, and scalable architecture based on your business requirements."
   },
   {
     question: "Do you provide ongoing support?",
@@ -292,6 +302,25 @@ const faqItems = [
     question: "How long does a typical build take?",
     answer:
       "Project timelines depend on system complexity, integrations, and review cycles. Smaller builds may complete within several weeks, while more complex systems require phased development. A detailed timeline is provided after discovery."
+  }
+];
+
+const serviceAreas = [
+  {
+    name: "Johannesburg",
+    detail: "Web design and website development for teams that need reliable lead flow."
+  },
+  {
+    name: "Cape Town",
+    detail: "Conversion-focused websites and digital systems for growing businesses."
+  },
+  {
+    name: "Durban",
+    detail: "Website builds, hosting, and maintenance for service and retail teams."
+  },
+  {
+    name: "Pretoria",
+    detail: "Business websites and internal tools designed for clear operations."
   }
 ];
 
@@ -638,14 +667,14 @@ export default function Home() {
         <section className="relative grid items-center gap-8 py-12 sm:py-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-10 lg:py-16">
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.35em] text-deep-blue">
-              Website development and support
+              Web design and website development South Africa
             </p>
             <h1 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
-              Professional websites, hosting, and maintenance for growing businesses.
+              Web design, website development, hosting, and maintenance in South Africa.
             </h1>
             <p className="mt-5 max-w-xl text-lg text-ink/80">
-              Binary Baker delivers structured website development plans, scalable hosting, and ongoing
-              support so your digital platform stays reliable as your business grows.
+              Binary Baker helps South African businesses launch fast, secure websites and business
+              systems with managed hosting and ongoing website maintenance.
             </p>
             <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
               <a className={buttonPrimary} href="#contact">
@@ -698,8 +727,8 @@ export default function Home() {
             <p className={sectionEyebrowLightClass}>Why Binary Baker</p>
             <h2 className={sectionHeadingClass}>Why Choose Binary Baker</h2>
             <p className={`${sectionBodyClass} max-w-3xl`}>
-              We build reliable digital systems with clear processes, strong technical standards, and a
-              long-term delivery mindset.
+              We are a web design and website development partner for South African businesses that need
+              clear execution, strong technical standards, and long-term support.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {whyBinaryBakerPoints.map((point, index) => (
@@ -718,10 +747,11 @@ export default function Home() {
           <div className="max-w-2xl">
             <p className={sectionEyebrowLightClass}>Services</p>
             <h2 className={sectionHeadingClass}>
-              Structured offerings for build, hosting, and long-term support.
+              Web design, development, and support services built for growth.
             </h2>
             <p className={sectionBodyClass}>
-              Choose the delivery model that matches your current stage and platform requirements.
+              Choose the model that matches your website development, e-commerce, hosting, and
+              maintenance requirements.
             </p>
           </div>
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -953,9 +983,9 @@ export default function Home() {
           <div className="mx-auto max-w-[1160px]">
             <div className="max-w-3xl">
               <p className={sectionEyebrowLightClass}>Infrastructure</p>
-              <h2 className={sectionHeadingClass}>Managed Infrastructure & Hosting</h2>
+              <h2 className={sectionHeadingClass}>Managed Website Hosting in South Africa</h2>
               <p className={sectionBodyClass}>
-                Engineered infrastructure designed for uptime, security, and scalable growth.
+                Managed website hosting designed for uptime, security, and scalable growth.
               </p>
             </div>
 
@@ -1011,9 +1041,9 @@ export default function Home() {
 
           <div className="relative max-w-3xl">
             <p className={sectionEyebrowLightClass}>Support</p>
-            <h2 className={sectionHeadingClass}>Ongoing Maintenance & Support</h2>
+            <h2 className={sectionHeadingClass}>Website Maintenance & Ongoing Support</h2>
             <p className={sectionBodyClass}>
-              Maintenance is optional but recommended to keep your platform stable, secure, and
+              Website maintenance is optional but recommended to keep your platform stable, secure, and
               performing well over time.
             </p>
           </div>
@@ -1068,6 +1098,30 @@ export default function Home() {
             >
               Get a Custom Quote
             </a>
+          </div>
+        </section>
+
+        <section className="reveal py-14 sm:py-16 lg:py-16" id="locations">
+          <div className={`${surfaceCardClass} p-6 sm:p-8`}>
+            <div className="max-w-3xl">
+              <p className={sectionEyebrowLightClass}>Service Areas</p>
+              <h2 className={sectionHeadingClass}>
+                Website Development Services Across South Africa
+              </h2>
+              <p className={sectionBodyClass}>
+                We work with businesses in Johannesburg, Cape Town, Durban, Pretoria, and remotely
+                across South Africa.
+              </p>
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {serviceAreas.map((area) => (
+                <article key={area.name} className={`${surfaceHoverClass} p-5`}>
+                  <h3 className="text-lg font-semibold text-ink">{area.name}</h3>
+                  <p className="mt-2 text-sm text-ink/70">{area.detail}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </section>
         <section className="reveal py-14 sm:py-16 lg:py-16" id="assurance">
@@ -1577,7 +1631,7 @@ export default function Home() {
         <div>
           <p className="font-serif text-lg font-bold">Binary Baker</p>
           <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-ink/70">
-            Website development, hosting, and support since 2024.
+            Web design, website development, hosting, and support since 2024.
           </p>
         </div>
         <div className="grid gap-2">

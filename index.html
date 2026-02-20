@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Binary Baker | Website Development, Hosting & Maintenance</title>
+    <title>Binary Baker | Web Design & Website Development South Africa</title>
     <meta
       name="description"
-      content="Binary Baker builds professional websites, business systems, hosting, and maintenance for growing businesses across South Africa."
+      content="Binary Baker delivers web design, website development, e-commerce builds, hosting, and website maintenance for businesses across South Africa."
     />
     <meta
       name="robots"
@@ -21,20 +21,20 @@
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_ZA" />
     <meta property="og:site_name" content="Binary Baker" />
-    <meta property="og:title" content="Binary Baker | Website Development, Hosting & Maintenance" />
+    <meta property="og:title" content="Web Design & Website Development South Africa | Binary Baker" />
     <meta
       property="og:description"
-      content="Binary Baker builds professional websites, business systems, hosting, and maintenance for growing businesses across South Africa."
+      content="Binary Baker delivers web design, website development, e-commerce builds, hosting, and website maintenance for businesses across South Africa."
     />
     <meta property="og:url" content="https://www.binarybaker.co.za/" />
     <meta property="og:image" content="https://www.binarybaker.co.za/android-chrome-512x512.png" />
     <meta property="og:image:alt" content="Binary Baker logo" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Binary Baker | Website Development, Hosting & Maintenance" />
+    <meta name="twitter:title" content="Web Design & Website Development South Africa | Binary Baker" />
     <meta
       name="twitter:description"
-      content="Binary Baker builds professional websites, business systems, hosting, and maintenance for growing businesses across South Africa."
+      content="Binary Baker delivers web design, website development, e-commerce builds, hosting, and website maintenance for businesses across South Africa."
     />
     <meta name="twitter:image" content="https://www.binarybaker.co.za/android-chrome-512x512.png" />
 
@@ -51,6 +51,7 @@
         "@graph": [
           {
             "@type": "Organization",
+            "@id": "https://www.binarybaker.co.za/#organization",
             "name": "Binary Baker",
             "url": "https://www.binarybaker.co.za/",
             "logo": "https://www.binarybaker.co.za/android-chrome-512x512.png",
@@ -64,9 +65,85 @@
           },
           {
             "@type": "WebSite",
+            "@id": "https://www.binarybaker.co.za/#website",
             "name": "Binary Baker",
             "url": "https://www.binarybaker.co.za/",
-            "inLanguage": "en-ZA"
+            "inLanguage": "en-ZA",
+            "publisher": {
+              "@id": "https://www.binarybaker.co.za/#organization"
+            }
+          },
+          {
+            "@type": "ProfessionalService",
+            "@id": "https://www.binarybaker.co.za/#professional-service",
+            "name": "Binary Baker",
+            "url": "https://www.binarybaker.co.za/",
+            "image": "https://www.binarybaker.co.za/android-chrome-512x512.png",
+            "description": "Web design, website development, e-commerce website development, hosting, and maintenance services for businesses across South Africa.",
+            "telephone": "+27611011669",
+            "email": "bradley@binarybaker.co.za",
+            "areaServed": [
+              {
+                "@type": "Country",
+                "name": "South Africa"
+              },
+              {
+                "@type": "City",
+                "name": "Johannesburg"
+              },
+              {
+                "@type": "City",
+                "name": "Cape Town"
+              },
+              {
+                "@type": "City",
+                "name": "Durban"
+              },
+              {
+                "@type": "City",
+                "name": "Pretoria"
+              }
+            ],
+            "serviceType": [
+              "Web design",
+              "Website development",
+              "E-commerce website development",
+              "Website hosting",
+              "Website maintenance"
+            ],
+            "provider": {
+              "@id": "https://www.binarybaker.co.za/#organization"
+            }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://www.binarybaker.co.za/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Do you offer web design and website development in South Africa?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Binary Baker provides web design and website development for businesses across South Africa, including Johannesburg, Cape Town, Durban, Pretoria, and remote teams."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Do you include hosting and website maintenance?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. We provide managed hosting options and structured website maintenance plans that include updates, performance monitoring, and issue handling."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can you build e-commerce websites?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. We build e-commerce websites with payment integrations, product management, and scalable architecture based on your business requirements."
+                }
+              }
+            ]
           }
         ]
       }
