@@ -2,6 +2,7 @@ import { httpsCallable } from "firebase/functions";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { functions } from "../../../firebase.js";
+import useSeoPage from "../../../seo/useSeoPage.js";
 import { cardBase, pageHeader, pageShell } from "../../../styles/uiTokens.js";
 
 type PublicInvoice = {
@@ -40,6 +41,8 @@ type PublicInvoice = {
 };
 
 export default function PublicInvoicePage() {
+  useSeoPage("publicInvoice", { indexable: false, title: "Secure Invoice Access | Binary Baker" });
+
   const { token } = useParams();
   const [invoice, setInvoice] = useState<PublicInvoice | null>(null);
   const [loading, setLoading] = useState(true);

@@ -1,4 +1,5 @@
 import { initializeApp, getApps } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getFunctions } from "firebase/functions";
@@ -9,11 +10,14 @@ const firebaseConfig = {
   projectId: "binarybaker2025",
   storageBucket: "binarybaker2025.firebasestorage.app",
   messagingSenderId: "895288452460",
-  appId: "1:895288452460:web:6ee4fbe8a44dbaded13f49"
+  appId: "1:895288452460:web:6ee4fbe8a44dbaded13f49",
+  measurementId: "G-H0423EPMS7"
 };
 
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const functions = getFunctions(app);
+export { analytics };

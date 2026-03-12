@@ -765,10 +765,15 @@ exports.submitWebsiteInquiry = onCall({ secrets: [resendApiKey] }, async (reques
   const fullName = toCleanString(payload.fullName, 120);
   const email = toCleanString(payload.email, 254).toLowerCase();
   const phone = toCleanString(payload.phone, 40);
-  const preferredContactMethod = normalizeEnumValue(
+  const hasEmail = Boolean(email);
+  const hasPhone = Boolean(phone);
+  const preferredContactMethodInput = normalizeEnumValue(
     payload.preferredContactMethod,
     ALLOWED_CONTACT_METHODS
   );
+  const preferredContactMethod =
+    preferredContactMethodInput ||
+    (hasEmail && hasPhone ? "either" : hasEmail ? "email" : hasPhone ? "whatsapp" : "");
   const consentToContact = payload.consentToContact === true;
   const honeypot = toCleanString(payload.website, 120);
 
@@ -778,11 +783,26 @@ exports.submitWebsiteInquiry = onCall({ secrets: [resendApiKey] }, async (reques
   if (!fullName) {
     throw new HttpsError("invalid-argument", "Full name is required.");
   }
-  if (!isValidEmail(email)) {
-    throw new HttpsError("invalid-argument", "A valid email is required.");
+  if (hasEmail && !isValidEmail(email)) {
+    throw new HttpsError("invalid-argument", "Please provide a valid email address.");
+  }
+  if (!hasEmail && !hasPhone) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Please provide at least one contact method: email or WhatsApp number."
+    );
   }
   if (!preferredContactMethod) {
     throw new HttpsError("invalid-argument", "Preferred contact method is required.");
+  }
+  if (preferredContactMethod === "email" && !hasEmail) {
+    throw new HttpsError("invalid-argument", "Preferred contact method is email, but no email was provided.");
+  }
+  if ((preferredContactMethod === "whatsapp" || preferredContactMethod === "phone") && !hasPhone) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Preferred contact method is WhatsApp/phone, but no number was provided."
+    );
   }
   if (!consentToContact) {
     throw new HttpsError("invalid-argument", "Consent is required.");
@@ -802,12 +822,6 @@ exports.submitWebsiteInquiry = onCall({ secrets: [resendApiKey] }, async (reques
   if (inquiryType === "system_quote") {
     if (!companyName) {
       throw new HttpsError("invalid-argument", "Company name is required for system quotes.");
-    }
-    if (!phone) {
-      throw new HttpsError(
-        "invalid-argument",
-        "WhatsApp number is required for system quotes."
-      );
     }
     if (!systemType) {
       throw new HttpsError("invalid-argument", "System type is required for system quotes.");
@@ -932,35 +946,48 @@ exports.submitWebsiteInquiry = onCall({ secrets: [resendApiKey] }, async (reques
       lead: inquiryData,
       inquiryId: inquiryRef.id
     });
-    const receiptEmail = buildInquiryReceiptEmail({
-      lead: inquiryData,
-      inquiryId: inquiryRef.id,
-      whatsappNumber
-    });
+    let alertSendResult;
+    let receiptSendResult = null;
 
-    const [alertSendResult, receiptSendResult] = await Promise.allSettled([
-      resend.emails.send({
-        from: fromAddress,
-        to: inboxAddress,
-        subject: alertEmail.subject,
-        html: alertEmail.html
-      }),
-      resend.emails.send({
-        from: fromAddress,
-        to: email,
-        subject: receiptEmail.subject,
-        html: receiptEmail.html
-      })
-    ]);
+    if (hasEmail) {
+      const receiptEmail = buildInquiryReceiptEmail({
+        lead: inquiryData,
+        inquiryId: inquiryRef.id,
+        whatsappNumber
+      });
+
+      [alertSendResult, receiptSendResult] = await Promise.allSettled([
+        resend.emails.send({
+          from: fromAddress,
+          to: inboxAddress,
+          subject: alertEmail.subject,
+          html: alertEmail.html
+        }),
+        resend.emails.send({
+          from: fromAddress,
+          to: email,
+          subject: receiptEmail.subject,
+          html: receiptEmail.html
+        })
+      ]);
+    } else {
+      [alertSendResult] = await Promise.allSettled([
+        resend.emails.send({
+          from: fromAddress,
+          to: inboxAddress,
+          subject: alertEmail.subject,
+          html: alertEmail.html
+        })
+      ]);
+    }
 
     const alertOutcome = resolveResendSendOutcome(
       alertSendResult,
       "Failed to send inquiry alert email."
     );
-    const receiptOutcome = resolveResendSendOutcome(
-      receiptSendResult,
-      "Failed to send inquiry receipt email."
-    );
+    const receiptOutcome = hasEmail
+      ? resolveResendSendOutcome(receiptSendResult, "Failed to send inquiry receipt email.")
+      : { status: "skipped", error: "", emailId: "" };
 
     await updateInquiryEmailStatuses({
       alertStatus: alertOutcome.status,

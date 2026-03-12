@@ -1,21 +1,21 @@
-export const pageShell = "min-h-screen max-w-6xl mx-auto px-4 pb-24 pt-6 sm:px-6 sm:pb-12";
-export const pageHeader = "flex flex-wrap items-center justify-between gap-6 py-4";
-export const brandLink = "flex items-center gap-3 font-serif text-lg font-bold";
+export const pageShell = "mx-auto max-w-6xl px-5 sm:px-8";
+export const pageHeader = "flex items-center justify-between";
+export const brandLink = "flex items-center gap-2.5 font-serif text-[1.05rem] font-bold tracking-tight text-cream";
 export const brandBadge =
-  "inline-flex h-10 w-10 items-center justify-center rounded-[14px] bg-gradient-to-br from-deep-blue to-violet font-mono text-sm uppercase tracking-[0.12em] text-cream";
+  "inline-flex h-8 w-8 items-center justify-center rounded-[7px] bg-blue font-mono text-[0.65rem] uppercase text-cream";
 
 export const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition duration-200 hover:-translate-y-1 hover:shadow-bb";
-export const buttonPrimary = `${buttonBase} bg-gradient-to-br from-deep-blue to-violet text-cream`;
-export const buttonGhost = `${buttonBase} border border-ink/20 bg-cream/70`;
+  "inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold transition-all duration-200";
+export const buttonPrimary = `${buttonBase} rounded-[8px] bg-blue text-cream hover:bg-blue/90`;
+export const buttonGhost = `${buttonBase} rounded-[8px] border border-cream/20 text-cream/75 hover:border-cream/35 hover:text-cream`;
 export const buttonSubtle =
-  "inline-flex items-center justify-center rounded-full border border-ink/15 bg-white/70 px-3 py-1 text-xs font-semibold text-ink/60 transition hover:text-ink hover:shadow-soft";
+  "inline-flex items-center rounded-[6px] border border-cream/[0.14] bg-cream/[0.06] px-3 py-1.5 text-xs font-semibold text-cream/65 transition hover:text-cream";
 
-export const cardBase = "rounded-[22px] border border-ink/10 bg-cream/90 p-6 shadow-soft";
-export const rowCard = "rounded-[16px] border border-ink/10 bg-white/70 p-4";
+export const cardBase = "rounded-[14px] border border-cream/[0.14] bg-cream/[0.06] p-6";
+export const rowCard = "rounded-[10px] border border-cream/[0.12] bg-cream/[0.05] p-4";
 export const inputBase =
-  "w-full rounded-[12px] border border-ink/15 bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-blue/60";
+  "w-full rounded-[8px] border border-cream/[0.18] bg-cream/[0.07] px-4 py-2.5 text-sm text-cream placeholder:text-cream/40 focus:outline-none focus:border-blue/60 focus:ring-1 focus:ring-blue/25 transition";
 export const textareaBase = `${inputBase} min-h-[96px]`;
-export const labelBase = "grid gap-2 text-sm";
+export const labelBase = "grid gap-2 text-sm text-cream/72";
 export const pillBase =
-  "inline-flex items-center rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em]";
+  "inline-flex items-center rounded-full px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.15em]";

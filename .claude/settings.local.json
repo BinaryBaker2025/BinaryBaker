@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/Bradley/OneDrive/Desktop/Work/BinaryBaker -type f -name tailwind.config.* -o -name tailwind.js)"
+    ]
+  }
+}

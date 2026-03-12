@@ -2,6 +2,20 @@
   "hosting": {
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "redirects": [
+      { "source": "/quote", "destination": "/free-quote", "type": 301 },
+      { "source": "/privacy", "destination": "/privacy-policy", "type": 301 },
+      {
+        "source": "/services/website-design",
+        "destination": "/services/website-design-development",
+        "type": 301
+      },
+      {
+        "source": "/services/website-maintenance-plans",
+        "destination": "/services/website-maintenance",
+        "type": 301
+      }
+    ],
     "rewrites": [{ "source": "**", "destination": "/index.html" }]
   },
   "functions": {

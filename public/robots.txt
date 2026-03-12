@@ -2,9 +2,11 @@ User-agent: *
 Allow: /
 
 Disallow: /admin/
+Disallow: /login
 Disallow: /portal
 Disallow: /customer
 Disallow: /client
 Disallow: /p/invoice/
+Disallow: /seo-status
 
-Sitemap: https://www.binarybaker.co.za/sitemap.xml
+Sitemap: https://binarybaker.co.za/sitemap.xml
